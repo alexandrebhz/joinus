@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: startup_board_db_dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: startup_board_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: startup_board_minio_dev
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_dev_data:/data
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: startup_board_api_dev
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=startup_board_dev
+      - DB_SSL_MODE=disable
+      - STORAGE_TYPE=minio
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=startup-board-uploads
+      - MINIO_USE_SSL=false
+      - JWT_SECRET=dev-secret-key-change-in-production
+      - JWT_EXPIRATION=24h
+      - JWT_REFRESH_EXPIRATION=168h
+      - GIN_MODE=debug
+      - ENVIRONMENT=development
+      - APP_URL=http://localhost:3000
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+      - RATE_LIMIT_ENABLED=false
+      - RATE_LIMIT_REQUESTS=100
+      - RATE_LIMIT_WINDOW=1m
+    depends_on:
+      - postgres
+      - minio
+    restart: unless-stopped
+    volumes:
+      - .:/app
+      - go_modules:/go/pkg/mod
+
+volumes:
+  postgres_dev_data:
+  minio_dev_data:
+  go_modules:
+

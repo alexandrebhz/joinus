@@ -1,0 +1,17 @@
+vendor/
+.git/
+.gitignore
+.env
+.env.local
+*.md
+README.md
+.vscode/
+.idea/
+tmp/
+bin/
+coverage.out
+*.test
+go.work
+
+
+
