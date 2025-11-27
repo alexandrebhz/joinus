@@ -2,10 +2,10 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/startup-job-board/backend/internal/presentation/http/handler"
-	"github.com/startup-job-board/backend/internal/presentation/http/middleware"
 	"github.com/startup-job-board/backend/internal/application/port"
 	"github.com/startup-job-board/backend/internal/domain/repository"
+	"github.com/startup-job-board/backend/internal/presentation/http/handler"
+	"github.com/startup-job-board/backend/internal/presentation/http/middleware"
 )
 
 func NewRouter(
@@ -84,6 +84,3 @@ func NewRouter(
 
 	return r
 }
-
-
-
