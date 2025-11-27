@@ -40,14 +40,12 @@ export default async function HomePage() {
   const [jobs, startups] = await Promise.all([getFeaturedJobs(), getFeaturedStartups()])
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <OrganizationStructuredData />
       <WebSiteStructuredData />
       {jobs.length > 0 && <JobPostingStructuredData jobs={jobs} />}
-      
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">
+      <Header />
+      <main className="flex-1">
           {/* Hero Section */}
           <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-20 sm:py-32">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
