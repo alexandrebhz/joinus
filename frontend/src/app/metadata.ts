@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+
 export const siteConfig = {
   name: 'JoinUs',
   description: 'Discover your next career opportunity at innovative startups. Browse remote, hybrid, and onsite tech jobs from fast-growing companies. Join thousands of professionals finding their dream roles.',
@@ -9,7 +11,7 @@ export const siteConfig = {
   },
 }
 
-export const defaultMetadata = {
+export const defaultMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default: 'JoinUs - Startup Job Board | Find Tech Jobs at Innovative Startups',
@@ -69,9 +71,6 @@ export const defaultMetadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
     },
   },
   verification: {

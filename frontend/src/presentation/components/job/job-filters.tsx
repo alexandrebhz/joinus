@@ -54,6 +54,7 @@ export function JobFilters({ className }: JobFiltersProps) {
     return () => {
       if (timer) clearTimeout(timer)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, applyFilters])
 
   const handleSubmit = (e: React.FormEvent) => {
