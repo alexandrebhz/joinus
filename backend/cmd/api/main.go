@@ -135,6 +135,12 @@ func main() {
 }
 
 func autoMigrate(db *gorm.DB) error {
+	// Enable required PostgreSQL extensions
+	if err := db.Exec("CREATE EXTENSION IF NOT EXISTS \"pgcrypto\"").Error; err != nil {
+		// Log but don't fail - extension might already exist or not be needed
+		log.Printf("Warning: Could not create pgcrypto extension (might already exist): %v", err)
+	}
+
 	// GORM auto-migration - creates/updates tables based on models
 	// In production, you might want to use SQL migrations instead
 	return db.AutoMigrate(

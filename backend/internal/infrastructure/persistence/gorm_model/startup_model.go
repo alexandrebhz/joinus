@@ -6,7 +6,7 @@ import (
 )
 
 type Startup struct {
-	ID              string     `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ID              string     `gorm:"type:uuid;primary_key"`
 	Name            string     `gorm:"type:varchar(255);not null"`
 	Slug            string     `gorm:"type:varchar(255);uniqueIndex;not null"`
 	Description     string     `gorm:"type:text;not null"`

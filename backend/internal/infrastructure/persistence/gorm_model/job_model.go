@@ -5,7 +5,7 @@ import (
 )
 
 type Job struct {
-	ID              string     `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ID              string     `gorm:"type:uuid;primary_key"`
 	StartupID       string     `gorm:"type:uuid;not null;index"`
 	Title           string     `gorm:"type:varchar(255);not null"`
 	Description     string     `gorm:"type:text;not null"`

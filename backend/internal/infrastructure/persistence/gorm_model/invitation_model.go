@@ -5,7 +5,7 @@ import (
 )
 
 type Invitation struct {
-	ID        string     `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ID        string     `gorm:"type:uuid;primary_key"`
 	StartupID string     `gorm:"type:uuid;not null;index"`
 	Email     string     `gorm:"type:varchar(255);not null;index"`
 	Token     string     `gorm:"type:varchar(255);uniqueIndex;not null"`

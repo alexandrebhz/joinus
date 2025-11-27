@@ -5,7 +5,7 @@ import (
 )
 
 type StartupMember struct {
-	ID        string     `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ID        string     `gorm:"type:uuid;primary_key"`
 	StartupID string     `gorm:"type:uuid;not null;index"`
 	UserID    string     `gorm:"type:uuid;not null;index"`
 	Role      string     `gorm:"type:varchar(50);not null;default:'member'"`
