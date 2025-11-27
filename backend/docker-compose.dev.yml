@@ -34,12 +34,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=startup_board_dev
-      - DB_SSL_MODE=disable
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/startup_board_dev?sslmode=disable}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-startup_board_dev}
+      - DB_SSL_MODE=${DB_SSL_MODE:-disable}
       - STORAGE_TYPE=minio
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=minioadmin

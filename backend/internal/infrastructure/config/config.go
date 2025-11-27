@@ -23,6 +23,7 @@ type Config struct {
 }
 
 type DatabaseConfig struct {
+	URL      string // Full database URL (takes precedence if provided)
 	Host     string
 	Port     string
 	User     string
@@ -82,6 +83,7 @@ func Load() (*Config, error) {
 		GinMode:     getEnv("GIN_MODE", "debug"),
 
 		Database: DatabaseConfig{
+			URL:      getEnv("DATABASE_URL", ""),
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnv("DB_PORT", "5432"),
 			User:     getEnv("DB_USER", "postgres"),

@@ -8,10 +8,17 @@ import (
 )
 
 func NewDatabase(cfg DatabaseConfig) (*gorm.DB, error) {
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		cfg.Host, cfg.User, cfg.Password, cfg.Name, cfg.Port, cfg.SSLMode,
-	)
+	var dsn string
+
+	// Use DATABASE_URL if provided, otherwise build DSN from individual parameters
+	if cfg.URL != "" {
+		dsn = cfg.URL
+	} else {
+		dsn = fmt.Sprintf(
+			"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+			cfg.Host, cfg.User, cfg.Password, cfg.Name, cfg.Port, cfg.SSLMode,
+		)
+	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
