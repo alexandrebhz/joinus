@@ -46,6 +46,11 @@ func NewUploadFileUseCase(
 }
 
 func (uc *UploadFileUseCase) Execute(ctx context.Context, fileData []byte, fileName string, mimeType string, userID string) (*dto.FileOutput, error) {
+	// Check if storage service is available
+	if uc.storageService == nil {
+		return nil, errors.NewBadRequestError("file storage is not configured")
+	}
+
 	// Validate file size
 	if len(fileData) > MaxFileSize {
 		return nil, errors.NewBadRequestError("file size exceeds 2MB limit")
@@ -80,7 +85,9 @@ func (uc *UploadFileUseCase) Execute(ctx context.Context, fileData []byte, fileN
 
 	if err := uc.fileRepo.Create(ctx, file); err != nil {
 		// Try to delete from storage if DB insert fails
-		uc.storageService.Delete(ctx, storageKey)
+		if uc.storageService != nil {
+			uc.storageService.Delete(ctx, storageKey)
+		}
 		return nil, err
 	}
 

@@ -23,6 +23,31 @@ DB_SSL_MODE=disable
 
 **Note:** If `DATABASE_URL` is set, it takes precedence over individual parameters.
 
+## Storage Configuration
+
+The application supports two storage backends:
+
+### MinIO (Development)
+```bash
+STORAGE_TYPE=minio
+MINIO_ENDPOINT=minio:9000  # Use service name in docker, or external URL
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=startup-board-uploads
+MINIO_USE_SSL=false
+```
+
+### S3 (Production - Recommended)
+```bash
+STORAGE_TYPE=s3
+S3_BUCKET=your-bucket-name
+S3_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+```
+
+**Note:** If storage fails to initialize, the application will start but file uploads will be disabled. This allows the app to run without storage for testing.
+
 ## Running with Docker
 
 ### Using Docker Compose (Recommended)

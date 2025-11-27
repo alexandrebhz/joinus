@@ -61,7 +61,9 @@ func main() {
 	tokenGen := auth.NewTokenGenerator()
 	storageService, err := storage.NewStorageService(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize storage: %v", err)
+		logger.Warn("Failed to initialize storage: %v. File uploads will be disabled.", err)
+		// Continue without storage - file uploads will fail gracefully
+		storageService = nil
 	}
 	emailService := email.NewResendEmailService(cfg.Email)
 	_ = email.NewEmailNotificationService(emailService) // Reserved for future use
@@ -82,6 +84,7 @@ func main() {
 	listJobsUC := jobusecase.NewListJobsUseCase(jobRepo, startupRepo, logger)
 	deleteJobUC := jobusecase.NewDeleteJobUseCase(jobRepo, authService, logger)
 
+	// Create upload use case (will handle nil storage gracefully)
 	uploadFileUC := fileusecase.NewUploadFileUseCase(fileRepo, storageService, logger)
 
 	// Initialize handlers
