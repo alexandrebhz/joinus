@@ -1,0 +1,496 @@
+{
+  "state": {
+    "isStdOutTTY": true,
+    "isStdErrTTY": true,
+    "testRunDurationMs": 214241.714
+  },
+  "metrics": {
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 46.07997099930114,
+        "min": 20.627,
+        "med": 35.4705,
+        "max": 406.518,
+        "p(90)": 104.8483,
+        "p(95)": 112.20509999999997
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 406.854,
+        "p(90)": 106.9524,
+        "p(95)": 114.10759999999999,
+        "avg": 48.58168435534592,
+        "min": 20.838,
+        "med": 37.128
+      }
+    },
+    "checks": {
+      "values": {
+        "rate": 0.9393939393939394,
+        "passes": 4929,
+        "fails": 318
+      },
+      "type": "rate",
+      "contains": "default"
+    },
+    "iteration_duration": {
+      "contains": "time",
+      "values": {
+        "min": 8750.443475,
+        "med": 8827.569722,
+        "max": 9268.752766,
+        "p(90)": 9000.109950600001,
+        "p(95)": 9061.052828,
+        "avg": 8861.311182075475
+      },
+      "type": "trend"
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 550300,
+        "rate": 2568.594088077544
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.7098738644304665,
+        "min": 0.025,
+        "med": 0.4195,
+        "max": 109.531,
+        "p(90)": 1.923000000000001,
+        "p(95)": 2.5815499999999982
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 10,
+        "min": 10,
+        "max": 10
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.1111111111111111,
+        "passes": 318,
+        "fails": 2544
+      },
+      "thresholds": {
+        "rate<0.1": {
+          "ok": false
+        }
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0,
+        "med": 0,
+        "max": 63.319,
+        "p(90)": 0,
+        "p(95)": 0,
+        "avg": 0.19044758909853252
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0,
+        "med": 0.001,
+        "max": 136.892,
+        "p(90)": 0.001,
+        "p(95)": 0.001,
+        "avg": 0.30980538085253734
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.10369461914744933,
+        "min": 0,
+        "med": 0,
+        "max": 33.69,
+        "p(90)": 0,
+        "p(95)": 0
+      }
+    },
+    "errors": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0.07142857142857142,
+        "passes": 159,
+        "fails": 2067
+      },
+      "thresholds": {
+        "rate<0.1": {
+          "ok": true
+        }
+      }
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 1,
+        "max": 10
+      }
+    },
+    "job_response_time": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "p(95)": 54.472599999999986,
+        "avg": 41.159430188679295,
+        "min": 24.602,
+        "med": 38.345,
+        "max": 406.854,
+        "p(90)": 48.9394
+      }
+    },
+    "data_received": {
+      "values": {
+        "count": 4416604,
+        "rate": 20615.051651425827
+      },
+      "type": "counter",
+      "contains": "data"
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 159,
+        "rate": 0.7421523896135371
+      }
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.1452690426275331,
+        "min": 0.046,
+        "med": 0.127,
+        "max": 9.99,
+        "p(90)": 0.232,
+        "p(95)": 0.279
+      }
+    },
+    "startup_response_time": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 40.046496855345914,
+        "min": 22.361,
+        "med": 35.637,
+        "max": 402.523,
+        "p(90)": 52.464200000000005,
+        "p(95)": 61.08799999999997
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 112.69255,
+        "avg": 46.93511390635913,
+        "min": 20.838,
+        "med": 36.4305,
+        "max": 406.854,
+        "p(90)": 105.3359
+      },
+      "thresholds": {
+        "p(95)<2000": {
+          "ok": true
+        }
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 13.35874301304367,
+        "count": 2862
+      }
+    },
+    "auth_response_time": {
+      "contains": "default",
+      "values": {
+        "min": 26.627,
+        "med": 106.737,
+        "max": 269.839,
+        "p(90)": 120.6546,
+        "p(95)": 127.19519999999999,
+        "avg": 88.43182599580715
+      },
+      "type": "trend"
+    }
+  },
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [],
+    "checks": [
+        {
+          "name": "health check status is 200",
+          "path": "::health check status is 200",
+          "id": "d89ad1db9736d06506c2c682124fe48f",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "passes": 159,
+          "fails": 0,
+          "name": "health check has status ok",
+          "path": "::health check has status ok",
+          "id": "90825b604494719ed99788f1b1516e98"
+        },
+        {
+          "path": "::register status is 200 or 201",
+          "id": "cd5ec71420d4586ed745ecc5c162e3d3",
+          "passes": 159,
+          "fails": 0,
+          "name": "register status is 200 or 201"
+        },
+        {
+          "name": "register returns user data",
+          "path": "::register returns user data",
+          "id": "6401c029d34a105ca6f226c6c1c53754",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "login status is 200",
+          "path": "::login status is 200",
+          "id": "baba87e761865dc93085ee0c1fe25f4c",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "login returns access token",
+          "path": "::login returns access token",
+          "id": "6293b1160fa705bac3d194d14543619f",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "get me status is 200",
+          "path": "::get me status is 200",
+          "id": "866dc753dd5bd691afcee4178f4fae1d",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "get me returns user data",
+          "path": "::get me returns user data",
+          "id": "874a3f7538afb7846eb3eea509dbaabf",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "create startup status is 200 or 201",
+          "path": "::create startup status is 200 or 201",
+          "id": "022e1c165c13e73735a1bb1c57808855",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "create startup returns startup data",
+          "path": "::create startup returns startup data",
+          "id": "9d6666fb8f3e6c1e167ad4fbe4f3b3a8",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "fails": 0,
+          "name": "list startups status is 200",
+          "path": "::list startups status is 200",
+          "id": "a2a9f1a14b39b66468068609a33e3fc0",
+          "passes": 159
+        },
+        {
+          "path": "::list startups returns array",
+          "id": "06a53ab39a7ad3719cd85ef55aeadb83",
+          "passes": 159,
+          "fails": 0,
+          "name": "list startups returns array"
+        },
+        {
+          "name": "get startup by id status is 200",
+          "path": "::get startup by id status is 200",
+          "id": "4513a808b5eaa6cb86d7048b81fbe6f0",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "get startup by id returns startup",
+          "path": "::get startup by id returns startup",
+          "id": "80ff46b6b4bbdbb591bb9f5e6053e562",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "passes": 159,
+          "fails": 0,
+          "name": "get startup by slug status is 200",
+          "path": "::get startup by slug status is 200",
+          "id": "c59806c3232a2022a897fa0163abe4e8"
+        },
+        {
+          "name": "get startup by slug returns startup",
+          "path": "::get startup by slug returns startup",
+          "id": "d39ffc9b7a8bf73c68cecd3ed37e70ed",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "update startup status is 200",
+          "path": "::update startup status is 200",
+          "id": "3f35e7f1eecc985a54d4542a58a30093",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "path": "::update startup returns updated data",
+          "id": "68a8e084e9e224491b2a8a4cd01e5fb1",
+          "passes": 159,
+          "fails": 0,
+          "name": "update startup returns updated data"
+        },
+        {
+          "id": "349e2b2dfef2698b4aec16b2b2f6aa58",
+          "passes": 159,
+          "fails": 0,
+          "name": "create job status is 200 or 201",
+          "path": "::create job status is 200 or 201"
+        },
+        {
+          "passes": 159,
+          "fails": 0,
+          "name": "create job returns job data",
+          "path": "::create job returns job data",
+          "id": "1d2491ad756d104e17a3ead93a3390b9"
+        },
+        {
+          "passes": 159,
+          "fails": 0,
+          "name": "list jobs status is 200",
+          "path": "::list jobs status is 200",
+          "id": "143f70c8b7287af5e6d070fb021ce190"
+        },
+        {
+          "id": "8ecf4e2f99e59da316e1f1aaa694577e",
+          "passes": 159,
+          "fails": 0,
+          "name": "list jobs returns array",
+          "path": "::list jobs returns array"
+        },
+        {
+          "name": "list jobs with filters status is 200",
+          "path": "::list jobs with filters status is 200",
+          "id": "0e448da0b8135d97d2c54abd3edb8a27",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "update job status is 200",
+          "path": "::update job status is 200",
+          "id": "541d2c0fc22259f3781a4b0ff1bdd931",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "update job returns updated data",
+          "path": "::update job returns updated data",
+          "id": "6c87823408629c5114843bf3a8359de9",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "delete job status is 200, 204, or 404",
+          "path": "::delete job status is 200, 204, or 404",
+          "id": "c97e2cde90d573c48e0e9d5bf336a61f",
+          "passes": 0,
+          "fails": 159
+        },
+        {
+          "passes": 0,
+          "fails": 159,
+          "name": "delete job returns valid response",
+          "path": "::delete job returns valid response",
+          "id": "e05ba451e6c2001266270012e0e3ea82"
+        },
+        {
+          "name": "upload file status is 200 or 400",
+          "path": "::upload file status is 200 or 400",
+          "id": "adbb773c895ed943a59e3cfa4fb8f311",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "upload file returns response",
+          "path": "::upload file returns response",
+          "id": "154a5b2208db3697341a035e10819c84",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "fails": 0,
+          "name": "refresh token status is 200",
+          "path": "::refresh token status is 200",
+          "id": "1bdac91d4d41eaaaafc4d7a07b8fce20",
+          "passes": 159
+        },
+        {
+          "name": "refresh token returns new access token",
+          "path": "::refresh token returns new access token",
+          "id": "b9da10a130a056b5755e3f5fd7e57c43",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "public list startups status is 200",
+          "path": "::public list startups status is 200",
+          "id": "7bae22c3d9b82b9ebdaa1bcddfa001c3",
+          "passes": 159,
+          "fails": 0
+        },
+        {
+          "name": "public list jobs status is 200",
+          "path": "::public list jobs status is 200",
+          "id": "2f03414fd77732d22def9caf9795c901",
+          "passes": 159,
+          "fails": 0
+        }
+      ]
+  },
+  "options": {
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(90)",
+      "p(95)"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  }
+}
