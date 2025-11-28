@@ -42,6 +42,7 @@ func NewRouter(
 
 		// Public jobs
 		public.GET("/jobs", jobHandler.List)
+		public.GET("/jobs/:id", jobHandler.Get)
 	}
 
 	// Protected routes (JWT)

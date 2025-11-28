@@ -91,7 +91,7 @@ func main() {
 	validator := validator.NewValidator()
 	authHandler := handler.NewAuthHandler(registerUC, loginUC, refreshTokenUC, validator)
 	startupHandler := handler.NewStartupHandler(createStartupUC, updateStartupUC, getStartupUC, listStartupsUC, validator)
-	jobHandler := handler.NewJobHandler(createJobUC, updateJobUC, listJobsUC, deleteJobUC, validator)
+	jobHandler := handler.NewJobHandler(createJobUC, updateJobUC, listJobsUC, deleteJobUC, jobRepo, startupRepo, validator)
 	fileHandler := handler.NewFileHandler(uploadFileUC)
 
 	// Initialize router

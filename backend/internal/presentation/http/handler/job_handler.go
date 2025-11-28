@@ -3,12 +3,13 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/startup-job-board/backend/internal/application/dto"
+	jobusecase "github.com/startup-job-board/backend/internal/application/usecase/job"
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
-	jobusecase "github.com/startup-job-board/backend/internal/application/usecase/job"
 	"github.com/startup-job-board/backend/internal/presentation/http/middleware"
 	"github.com/startup-job-board/backend/internal/presentation/http/response"
 	"github.com/startup-job-board/backend/internal/presentation/http/validator"
@@ -20,6 +21,8 @@ type JobHandler struct {
 	updateUseCase *jobusecase.UpdateJobUseCase
 	listUseCase   *jobusecase.ListJobsUseCase
 	deleteUseCase *jobusecase.DeleteJobUseCase
+	jobRepo       repository.JobRepository
+	startupRepo   repository.StartupRepository
 	validator     *validator.Validator
 }
 
@@ -28,6 +31,8 @@ func NewJobHandler(
 	updateUseCase *jobusecase.UpdateJobUseCase,
 	listUseCase *jobusecase.ListJobsUseCase,
 	deleteUseCase *jobusecase.DeleteJobUseCase,
+	jobRepo repository.JobRepository,
+	startupRepo repository.StartupRepository,
 	validator *validator.Validator,
 ) *JobHandler {
 	return &JobHandler{
@@ -35,6 +40,8 @@ func NewJobHandler(
 		updateUseCase: updateUseCase,
 		listUseCase:   listUseCase,
 		deleteUseCase: deleteUseCase,
+		jobRepo:       jobRepo,
+		startupRepo:   startupRepo,
 		validator:     validator,
 	}
 }
@@ -128,8 +135,53 @@ func (h *JobHandler) List(c *gin.Context) {
 }
 
 func (h *JobHandler) Get(c *gin.Context) {
-	// This would need a GetJob use case
-	response.Success(c, gin.H{"message": "not implemented"})
+	id := c.Param("id")
+	if id == "" {
+		response.BadRequest(c, "job id is required")
+		return
+	}
+
+	job, err := h.jobRepo.FindByID(c.Request.Context(), id)
+	if err != nil {
+		response.Error(c, http.StatusNotFound, err)
+		return
+	}
+
+	// Get startup name
+	startup, _ := h.startupRepo.FindByID(c.Request.Context(), job.StartupID)
+	startupName := ""
+	if startup != nil {
+		startupName = startup.Name
+	}
+
+	// Convert to output DTO
+	output := &dto.JobOutput{
+		ID:               job.ID,
+		StartupID:        job.StartupID,
+		StartupName:      startupName,
+		Title:            job.Title,
+		Description:      job.Description,
+		Requirements:     job.Requirements,
+		JobType:          string(job.JobType),
+		LocationType:     string(job.LocationType),
+		City:             job.City,
+		Country:          job.Country,
+		SalaryMin:        job.SalaryMin,
+		SalaryMax:        job.SalaryMax,
+		Currency:         job.Currency,
+		ApplicationURL:   job.ApplicationURL,
+		ApplicationEmail: job.ApplicationEmail,
+		Status:           string(job.Status),
+		CreatedAt:        job.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:        job.UpdatedAt.Format(time.RFC3339),
+	}
+
+	if job.ExpiresAt != nil {
+		expiresAtStr := job.ExpiresAt.Format(time.RFC3339)
+		output.ExpiresAt = &expiresAtStr
+	}
+
+	response.Success(c, output)
 }
 
 func (h *JobHandler) Delete(c *gin.Context) {
@@ -143,6 +195,3 @@ func (h *JobHandler) Delete(c *gin.Context) {
 
 	response.Success(c, gin.H{"message": "job deleted successfully"})
 }
-
-
-
