@@ -14,7 +14,7 @@ export function Pagination({ meta, className }: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  if (!meta || meta.total_pages <= 1) {
+  if (!meta || meta.totalPages <= 1) {
     return null
   }
 
