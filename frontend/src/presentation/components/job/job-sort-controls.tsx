@@ -28,7 +28,7 @@ export function JobSortControls() {
     router.push(`/jobs?${params.toString()}`)
   }
 
-  const sortOptions = [
+  const sortOptions: Array<{ value: string; label: string; dir: 'ASC' | 'DESC' }> = [
     { value: 'created_at', label: 'Date Posted', dir: 'DESC' },
     { value: 'title', label: 'Job Title', dir: 'ASC' },
     { value: 'salary_max', label: 'Salary (High to Low)', dir: 'DESC' },
