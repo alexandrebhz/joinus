@@ -64,6 +64,8 @@ services:
       - ENVIRONMENT=production
       - APP_URL=${APP_URL:-http://localhost:3000}
       - RESEND_API_KEY=${RESEND_API_KEY}
+      # CORS_ALLOWED_ORIGINS: Comma-separated list of allowed origins
+      # Example: https://joinus.ie,https://www.joinus.ie,http://localhost:3000
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
       - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
       - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS:-100}
