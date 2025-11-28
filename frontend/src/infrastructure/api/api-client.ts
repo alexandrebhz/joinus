@@ -10,7 +10,12 @@ export class ApiClient implements IApiClient {
   private client: AxiosInstance
   private baseURL: string
 
-  private normalizeApiUrl(url: string): string {
+  private normalizeApiUrl(url: string | undefined): string {
+    // Handle undefined/null/empty values
+    if (!url || typeof url !== 'string') {
+      return 'http://localhost:8080'
+    }
+    
     // Remove trailing slashes
     let normalized = url.trim().replace(/\/+$/, '')
     
@@ -38,21 +43,30 @@ export class ApiClient implements IApiClient {
     
     // Ensure URL has protocol
     if (!normalized.match(/^https?:\/\//)) {
-      normalized = `http://${normalized}`
+      // For Railway/production domains, use HTTPS. For localhost, use HTTP
+      if (normalized.includes('.railway.app') || normalized.includes('.up.railway.app') || normalized.includes('railway')) {
+        normalized = `https://${normalized}`
+      } else if (normalized.includes('localhost') || normalized.includes('127.0.0.1')) {
+        normalized = `http://${normalized}`
+      } else {
+        // Default to HTTPS for production domains
+        normalized = `https://${normalized}`
+      }
     }
     
     return normalized
   }
 
   constructor(baseURL?: string) {
+    // Safely get the URL, handling undefined values
     const rawUrl = baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
     
-    // Log the raw environment variable value for debugging
+    // Log the raw environment variable value for debugging (only in browser)
     if (typeof window !== 'undefined') {
       console.log('[ApiClient] Environment check:', {
         'process.env.NEXT_PUBLIC_API_URL': process.env.NEXT_PUBLIC_API_URL,
         'rawUrl parameter': rawUrl,
-        'window.location.origin': typeof window !== 'undefined' ? window.location.origin : 'N/A'
+        'window.location.origin': window.location.origin
       })
     }
     

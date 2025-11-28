@@ -10,14 +10,14 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
       item: {
         '@type': 'JobPosting',
         title: job.title,
-        description: job.description.substring(0, 500), // Limit description length
+        description: job.description?.substring(0, 500) || '', // Limit description length
         identifier: {
           '@type': 'PropertyValue',
           name: 'JoinUs',
           value: job.id,
         },
         datePosted: job.createdAt,
-        employmentType: job.jobType.replace('_', ' '),
+        employmentType: job.jobType?.replace('_', ' ') || 'FULL_TIME',
         hiringOrganization: {
           '@type': 'Organization',
           name: job.startupName || 'Startup',

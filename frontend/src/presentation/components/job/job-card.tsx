@@ -54,7 +54,7 @@ export function JobCard({ job }: JobCardProps) {
           </div>
           <div className="flex items-center text-sm text-secondary-600">
             <Briefcase className="h-4 w-4 mr-1" />
-            {job.jobType.replace('_', ' ')}
+            {job.jobType?.replace('_', ' ') || 'Full-time'}
           </div>
           {formatSalary() && (
             <div className="flex items-center text-sm text-secondary-600">
