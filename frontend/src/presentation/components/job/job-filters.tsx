@@ -356,7 +356,7 @@ export function JobFilters({ className }: JobFiltersProps) {
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant={orderDir === 'DESC' ? 'default' : 'outline'}
+                  variant={orderDir === 'DESC' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setOrderDir('DESC')}
                   className="flex-1"
@@ -365,7 +365,7 @@ export function JobFilters({ className }: JobFiltersProps) {
                 </Button>
                 <Button
                   type="button"
-                  variant={orderDir === 'ASC' ? 'default' : 'outline'}
+                  variant={orderDir === 'ASC' ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setOrderDir('ASC')}
                   className="flex-1"
