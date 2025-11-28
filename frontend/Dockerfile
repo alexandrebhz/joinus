@@ -11,12 +11,17 @@ RUN npm install
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Accept build argument for NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_URL=http://api:8080
+
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
+# Set NEXT_PUBLIC_API_URL as environment variable for build time
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Build the application
 RUN npm run build
