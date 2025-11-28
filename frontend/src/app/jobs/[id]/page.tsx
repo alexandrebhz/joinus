@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import { Header } from '@/presentation/components/layout/header'
 import { Footer } from '@/presentation/components/layout/footer'
 import { apiClient } from '@/infrastructure/api/api-client'
@@ -8,22 +9,40 @@ import { MapPin, Briefcase, DollarSign, Calendar, ExternalLink, Mail } from 'luc
 import { formatDistanceToNow } from 'date-fns'
 
 interface JobDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 async function getJob(id: string) {
   try {
     const response = await apiClient.getJob(id)
     return response.data
-  } catch {
+  } catch (error: any) {
+    console.error('Error fetching job:', error)
     return null
   }
 }
 
+export async function generateMetadata({ params }: JobDetailPageProps): Promise<Metadata> {
+  const { id } = await params
+  const job = await getJob(id)
+  
+  if (!job) {
+    return {
+      title: 'Job Not Found',
+    }
+  }
+
+  return {
+    title: `${job.title} at ${job.startupName || 'Startup'} | JoinUs`,
+    description: job.description?.substring(0, 160) || `Job opening at ${job.startupName || 'Startup'}`,
+  }
+}
+
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
-  const job = await getJob(params.id)
+  const { id } = await params
+  const job = await getJob(id)
 
   if (!job) {
     notFound()
