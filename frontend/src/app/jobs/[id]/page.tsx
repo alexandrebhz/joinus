@@ -95,7 +95,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     )}
                     <div className="flex items-center text-secondary-700">
                       <Calendar className="h-5 w-5 mr-3 text-secondary-400" />
-                      <span>Posted {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}</span>
+                      <span>Posted {job.createdAt && !isNaN(new Date(job.createdAt).getTime())
+                        ? formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })
+                        : 'recently'}</span>
                     </div>
                   </div>
                 </CardContent>

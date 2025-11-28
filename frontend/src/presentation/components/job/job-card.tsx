@@ -68,7 +68,9 @@ export function JobCard({ job }: JobCardProps) {
       <CardFooter className="flex items-center justify-between">
         <span className="text-xs text-secondary-500">
           <Clock className="h-3 w-3 inline mr-1" />
-          {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}
+          {job.createdAt && !isNaN(new Date(job.createdAt).getTime())
+            ? formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })
+            : 'Recently posted'}
         </span>
         <Link href={`/jobs/${job.id}`}>
           <Button size="sm">View Details</Button>

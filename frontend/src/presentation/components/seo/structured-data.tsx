@@ -16,7 +16,9 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
           name: 'JoinUs',
           value: job.id,
         },
-        datePosted: job.createdAt,
+        ...(job.createdAt && !isNaN(new Date(job.createdAt).getTime()) && {
+          datePosted: job.createdAt,
+        }),
         employmentType: job.jobType?.replace('_', ' ') || 'FULL_TIME',
         hiringOrganization: {
           '@type': 'Organization',
