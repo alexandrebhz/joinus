@@ -110,6 +110,25 @@ func (h *JobHandler) List(c *gin.Context) {
 	if search := c.Query("search"); search != "" {
 		filter.Search = search
 	}
+	if country := c.Query("country"); country != "" {
+		filter.Country = country
+	}
+	if city := c.Query("city"); city != "" {
+		filter.City = city
+	}
+	if salaryMinStr := c.Query("salary_min"); salaryMinStr != "" {
+		if salaryMin, err := strconv.Atoi(salaryMinStr); err == nil {
+			filter.SalaryMin = &salaryMin
+		}
+	}
+	if salaryMaxStr := c.Query("salary_max"); salaryMaxStr != "" {
+		if salaryMax, err := strconv.Atoi(salaryMaxStr); err == nil {
+			filter.SalaryMax = &salaryMax
+		}
+	}
+	if currency := c.Query("currency"); currency != "" {
+		filter.Currency = currency
+	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -147,11 +166,13 @@ func (h *JobHandler) Get(c *gin.Context) {
 		return
 	}
 
-	// Get startup name
+	// Get startup name and slug
 	startup, _ := h.startupRepo.FindByID(c.Request.Context(), job.StartupID)
 	startupName := ""
+	startupSlug := ""
 	if startup != nil {
 		startupName = startup.Name
+		startupSlug = startup.Slug
 	}
 
 	// Convert to output DTO
@@ -159,6 +180,7 @@ func (h *JobHandler) Get(c *gin.Context) {
 		ID:               job.ID,
 		StartupID:        job.StartupID,
 		StartupName:      startupName,
+		StartupSlug:      startupSlug,
 		Title:            job.Title,
 		Description:      job.Description,
 		Requirements:     job.Requirements,

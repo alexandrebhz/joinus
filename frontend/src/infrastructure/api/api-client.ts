@@ -13,6 +13,7 @@ export class ApiClient implements IApiClient {
       id: job.id,
       startupId: job.startup_id,
       startupName: job.startup_name,
+      startupSlug: job.startup_slug,
       title: job.title,
       description: job.description,
       requirements: job.requirements,
@@ -285,7 +286,7 @@ export class ApiClient implements IApiClient {
 
   // Job methods
   async listJobs(filters?: JobListFilters): Promise<ApiResponse<JobResponse[]>> {
-    const response = await this.request<any[]>({
+    const response = await this.request<any>({
       method: 'GET',
       url: '/jobs',
       params: filters,
@@ -294,6 +295,17 @@ export class ApiClient implements IApiClient {
     // Transform snake_case API response to camelCase frontend format
     if (response.data && Array.isArray(response.data)) {
       response.data = response.data.map(job => this.transformJobData(job))
+    }
+    
+    // Transform pagination meta from snake_case to camelCase
+    if (response.meta) {
+      const meta = response.meta as any
+      response.meta = {
+        page: meta.page,
+        pageSize: meta.page_size,
+        totalPages: meta.total_pages,
+        totalCount: meta.total_count,
+      }
     }
     
     return response as ApiResponse<JobResponse[]>

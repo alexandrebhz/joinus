@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/startup-job-board/backend/internal/domain/entity"
@@ -35,7 +34,7 @@ func (r *JobRepositoryImpl) Delete(ctx context.Context, id string) error {
 
 func (r *JobRepositoryImpl) FindByID(ctx context.Context, id string) (*entity.Job, error) {
 	var model gorm_model.Job
-	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&model).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where(&gorm_model.Job{ID: id}).First(&model).Error; err != nil {
 		return nil, err
 	}
 	return r.toDomain(&model), nil
@@ -45,20 +44,39 @@ func (r *JobRepositoryImpl) List(ctx context.Context, filter repository.JobFilte
 	query := r.db.WithContext(ctx).Model(&gorm_model.Job{})
 
 	if filter.StartupID != "" {
-		query = query.Where("startup_id = ?", filter.StartupID)
+		query = query.Where(&gorm_model.Job{StartupID: filter.StartupID})
 	}
 	if filter.JobType != "" {
-		query = query.Where("job_type = ?", string(filter.JobType))
+		query = query.Where(&gorm_model.Job{JobType: string(filter.JobType)})
 	}
 	if filter.LocationType != "" {
-		query = query.Where("location_type = ?", string(filter.LocationType))
+		query = query.Where(&gorm_model.Job{LocationType: string(filter.LocationType)})
 	}
 	if filter.Status != "" {
-		query = query.Where("status = ?", string(filter.Status))
+		query = query.Where(&gorm_model.Job{Status: string(filter.Status)})
 	}
 	if filter.Search != "" {
 		search := "%" + strings.ToLower(filter.Search) + "%"
 		query = query.Where("LOWER(title) LIKE ? OR LOWER(description) LIKE ?", search, search)
+	}
+	if filter.Country != "" {
+		searchCountry := "%" + strings.ToLower(filter.Country) + "%"
+		query = query.Where("LOWER(country) LIKE ?", searchCountry)
+	}
+	if filter.City != "" {
+		searchCity := "%" + strings.ToLower(filter.City) + "%"
+		query = query.Where("LOWER(city) LIKE ?", searchCity)
+	}
+	if filter.SalaryMin != nil {
+		// Job must have salary_max >= min OR salary_min >= min (if no max specified)
+		query = query.Where("salary_max >= ? OR (salary_min >= ? AND salary_max IS NULL)", *filter.SalaryMin, *filter.SalaryMin)
+	}
+	if filter.SalaryMax != nil {
+		// Job must have salary_min <= max OR no min specified
+		query = query.Where("salary_min <= ? OR salary_min IS NULL", *filter.SalaryMax)
+	}
+	if filter.Currency != "" {
+		query = query.Where(&gorm_model.Job{Currency: filter.Currency})
 	}
 
 	var total int64
@@ -71,6 +89,7 @@ func (r *JobRepositoryImpl) List(ctx context.Context, filter repository.JobFilte
 		query = query.Offset(offset).Limit(filter.PageSize)
 	}
 
+	// Apply ordering using GORM's Order method
 	orderBy := "created_at"
 	if filter.OrderBy != "" {
 		orderBy = filter.OrderBy
@@ -79,7 +98,11 @@ func (r *JobRepositoryImpl) List(ctx context.Context, filter repository.JobFilte
 	if filter.OrderDir != "" {
 		orderDir = strings.ToUpper(filter.OrderDir)
 	}
-	query = query.Order(fmt.Sprintf("%s %s", orderBy, orderDir))
+	if orderDir == "ASC" {
+		query = query.Order(orderBy + " ASC")
+	} else {
+		query = query.Order(orderBy + " DESC")
+	}
 
 	var models []gorm_model.Job
 	if err := query.Find(&models).Error; err != nil {
@@ -96,7 +119,7 @@ func (r *JobRepositoryImpl) List(ctx context.Context, filter repository.JobFilte
 
 func (r *JobRepositoryImpl) FindByStartupID(ctx context.Context, startupID string, limit int) ([]*entity.Job, error) {
 	var models []gorm_model.Job
-	query := r.db.WithContext(ctx).Where("startup_id = ?", startupID)
+	query := r.db.WithContext(ctx).Where(&gorm_model.Job{StartupID: startupID})
 	if limit > 0 {
 		query = query.Limit(limit)
 	}

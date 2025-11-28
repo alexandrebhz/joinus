@@ -3,37 +3,71 @@ import { Footer } from '@/presentation/components/layout/footer'
 import { JobCard } from '@/presentation/components/job/job-card'
 import { JobFilters } from '@/presentation/components/job/job-filters'
 import { JobFiltersMobile } from '@/presentation/components/job/job-filters-mobile'
+import { Pagination } from '@/presentation/components/ui/pagination'
 import { apiClient } from '@/infrastructure/api/api-client'
+import { JobSortControls } from '@/presentation/components/job/job-sort-controls'
 
 interface JobsPageProps {
   searchParams: {
     search?: string
     job_type?: string
     location_type?: string
+    country?: string
+    city?: string
+    salary_min?: string
+    salary_max?: string
+    currency?: string
+    order_by?: string
+    order_dir?: 'ASC' | 'DESC'
     page?: string
   }
 }
 
 async function getJobs(filters: any) {
   try {
-    const response = await apiClient.listJobs({
-      ...filters,
+    const params: any = {
       page: filters.page ? parseInt(filters.page) : 1,
       page_size: 12,
-    })
-    return response.data || []
+    }
+    
+    if (filters.search) params.search = filters.search
+    if (filters.job_type) params.job_type = filters.job_type
+    if (filters.location_type) params.location_type = filters.location_type
+    if (filters.country) params.country = filters.country
+    if (filters.city) params.city = filters.city
+    if (filters.salary_min) params.salary_min = parseInt(filters.salary_min)
+    if (filters.salary_max) params.salary_max = parseInt(filters.salary_max)
+    if (filters.currency) params.currency = filters.currency
+    if (filters.order_by) params.order_by = filters.order_by
+    if (filters.order_dir) params.order_dir = filters.order_dir
+    
+    const response = await apiClient.listJobs(params)
+    return {
+      jobs: response.data || [],
+      meta: response.meta,
+    }
   } catch {
-    return []
+    return {
+      jobs: [],
+      meta: undefined,
+    }
   }
 }
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
-  const jobs = await getJobs(searchParams)
+  const { jobs, meta } = await getJobs(searchParams)
   
   const activeFiltersCount = [
     searchParams.search,
     searchParams.job_type,
     searchParams.location_type,
+    searchParams.country,
+    searchParams.city,
+    searchParams.salary_min,
+    searchParams.salary_max,
+    searchParams.currency,
+    searchParams.order_by && searchParams.order_by !== 'created_at' ? searchParams.order_by : null,
+    searchParams.order_dir && searchParams.order_dir !== 'DESC' ? searchParams.order_dir : null,
   ].filter(Boolean).length
 
   return (
@@ -67,16 +101,23 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
             {/* Jobs List */}
             <div className="flex-1">
+              {/* Sort Controls */}
+              <div className="mb-6">
+                <JobSortControls />
+              </div>
+
               {jobs.length > 0 ? (
                 <>
-                  <div className="mb-4 text-sm text-secondary-600">
-                    {jobs.length} job{jobs.length !== 1 ? 's' : ''} found
+                  <div className="mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {jobs.map((job) => (
+                        <JobCard key={job.id} job={job} />
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {jobs.map((job) => (
-                      <JobCard key={job.id} job={job} />
-                    ))}
-                  </div>
+
+                  {/* Pagination */}
+                  {meta && <Pagination meta={meta} />}
                 </>
               ) : (
                 <div className="text-center py-12">

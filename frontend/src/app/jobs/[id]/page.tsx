@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { Header } from '@/presentation/components/layout/header'
 import { Footer } from '@/presentation/components/layout/footer'
 import { apiClient } from '@/infrastructure/api/api-client'
@@ -69,7 +70,11 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-secondary-900 mb-2">{job.title}</h1>
             {job.startupName && (
-              <p className="text-lg text-primary-600 font-medium">{job.startupName}</p>
+              <Link href={`/startups/${job.startupSlug || job.startupId}`}>
+                <p className="text-lg text-primary-600 hover:text-primary-700 font-medium transition-colors">
+                  {job.startupName}
+                </p>
+              </Link>
             )}
           </div>
 

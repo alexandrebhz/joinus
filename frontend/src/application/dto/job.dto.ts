@@ -41,6 +41,13 @@ export interface JobListFilters {
   location_type?: LocationType
   status?: JobStatus
   search?: string
+  country?: string
+  city?: string
+  salary_min?: number
+  salary_max?: number
+  currency?: string
+  order_by?: string
+  order_dir?: 'ASC' | 'DESC'
   page?: number
   page_size?: number
 }

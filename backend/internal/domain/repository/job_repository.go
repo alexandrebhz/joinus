@@ -20,6 +20,11 @@ type JobFilter struct {
 	LocationType entity.LocationType
 	Status       entity.JobStatus
 	Search       string
+	Country      string
+	City         string
+	SalaryMin    *int
+	SalaryMax    *int
+	Currency     string
 	Pagination
 }
 

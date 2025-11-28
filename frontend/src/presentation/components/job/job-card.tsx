@@ -36,7 +36,7 @@ export function JobCard({ job }: JobCardProps) {
               </h3>
             </Link>
             {job.startupName && (
-              <Link href={`/startups/${job.startupId}`}>
+              <Link href={`/startups/${job.startupSlug || job.startupId}`}>
                 <p className="text-sm text-primary-600 hover:text-primary-700 font-medium">
                   {job.startupName}
                 </p>

@@ -38,20 +38,23 @@ func (uc *ListJobsUseCase) Execute(ctx context.Context, filter repository.JobFil
 	for i, j := range jobs {
 		startup, _ := uc.startupRepo.FindByID(ctx, j.StartupID)
 		startupName := ""
+		startupSlug := ""
 		if startup != nil {
 			startupName = startup.Name
+			startupSlug = startup.Slug
 		}
-		outputs[i] = uc.toOutput(j, startupName)
+		outputs[i] = uc.toOutput(j, startupName, startupSlug)
 	}
 
 	return outputs, total, nil
 }
 
-func (uc *ListJobsUseCase) toOutput(job *entity.Job, startupName string) *dto.JobOutput {
+func (uc *ListJobsUseCase) toOutput(job *entity.Job, startupName string, startupSlug string) *dto.JobOutput {
 	output := &dto.JobOutput{
 		ID:              job.ID,
 		StartupID:       job.StartupID,
 		StartupName:     startupName,
+		StartupSlug:     startupSlug,
 		Title:           job.Title,
 		Description:     job.Description,
 		Requirements:    job.Requirements,

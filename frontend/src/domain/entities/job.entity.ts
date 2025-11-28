@@ -2,6 +2,7 @@ export interface Job {
   id: string
   startupId: string
   startupName?: string
+  startupSlug?: string
   title: string
   description: string
   requirements: string
