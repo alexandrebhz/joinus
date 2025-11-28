@@ -13,9 +13,8 @@ const nextConfig = {
       },
     ],
   },
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
-  },
+  // Note: NEXT_PUBLIC_* variables are automatically exposed by Next.js
+  // No need to manually set them in the env section
 }
 
 module.exports = nextConfig

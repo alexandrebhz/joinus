@@ -10,18 +10,114 @@ export class ApiClient implements IApiClient {
   private client: AxiosInstance
   private baseURL: string
 
+  private normalizeApiUrl(url: string): string {
+    // Remove trailing slashes
+    let normalized = url.trim().replace(/\/+$/, '')
+    
+    // If URL contains the frontend domain incorrectly prepended, try to extract the backend URL
+    // Example: https://joinus.ie/joinus-production.up.railway.app -> https://joinus-production.up.railway.app
+    // Pattern 1: https://frontend.com/https://backend.com
+    const frontendDomainMatch1 = normalized.match(/https?:\/\/[^\/]+\/(https?:\/\/.+)/)
+    if (frontendDomainMatch1) {
+      normalized = frontendDomainMatch1[1]
+    }
+    
+    // Pattern 2: https://frontend.com/backend-domain.com (without protocol in path)
+    // Check if URL looks like frontend-domain/backend-domain pattern
+    const urlParts = normalized.split('/')
+    if (urlParts.length >= 4 && urlParts[2] && urlParts[3]) {
+      const frontendDomain = urlParts[2] // e.g., joinus.ie
+      const backendDomain = urlParts[3] // e.g., joinus-production.up.railway.app
+      
+      // If backend domain looks like a Railway/backend domain and frontend domain is different
+      if (backendDomain.includes('.railway.app') || backendDomain.includes('.up.railway.app')) {
+        // Extract just the backend domain and reconstruct URL
+        normalized = `https://${backendDomain}`
+      }
+    }
+    
+    // Ensure URL has protocol
+    if (!normalized.match(/^https?:\/\//)) {
+      normalized = `http://${normalized}`
+    }
+    
+    return normalized
+  }
+
   constructor(baseURL?: string) {
-    this.baseURL = baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+    const rawUrl = baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+    
+    // Log the raw environment variable value for debugging
+    if (typeof window !== 'undefined') {
+      console.log('[ApiClient] Environment check:', {
+        'process.env.NEXT_PUBLIC_API_URL': process.env.NEXT_PUBLIC_API_URL,
+        'rawUrl parameter': rawUrl,
+        'window.location.origin': typeof window !== 'undefined' ? window.location.origin : 'N/A'
+      })
+    }
+    
+    const normalizedUrl = this.normalizeApiUrl(rawUrl)
+    
+    // Warn if URL was normalized (indicates misconfiguration)
+    if (rawUrl !== normalizedUrl && typeof window !== 'undefined') {
+      console.warn('[ApiClient] API URL was normalized:', {
+        original: rawUrl,
+        normalized: normalizedUrl,
+        message: 'NEXT_PUBLIC_API_URL appears to be incorrectly formatted. Please set it to the backend URL only (e.g., https://joinus-production.up.railway.app)'
+      })
+    }
+    
+    this.baseURL = normalizedUrl
+    
+    // Always log in production to help debug URL issues
+    if (typeof window !== 'undefined') {
+      console.log('[ApiClient] Final baseURL:', this.baseURL)
+    }
+    
+    // Ensure baseURL is absolute (starts with http:// or https://)
+    // This is critical - axios will treat URLs without protocol as relative to current origin
+    let absoluteBaseURL: string
+    if (this.baseURL.startsWith('http://') || this.baseURL.startsWith('https://')) {
+      absoluteBaseURL = `${this.baseURL}/api/v1`
+    } else {
+      // If no protocol, assume HTTPS for production
+      absoluteBaseURL = `https://${this.baseURL}/api/v1`
+      console.warn('[ApiClient] baseURL missing protocol, assuming HTTPS:', absoluteBaseURL)
+    }
+    
+    // Final validation - ensure it's truly absolute
+    if (!absoluteBaseURL.match(/^https?:\/\//)) {
+      throw new Error(`Invalid API baseURL: ${absoluteBaseURL}. Must start with http:// or https://`)
+    }
+    
     this.client = axios.create({
-      baseURL: `${this.baseURL}/api/v1`,
+      baseURL: absoluteBaseURL,
       headers: {
         'Content-Type': 'application/json',
       },
     })
 
-    // Request interceptor to add auth token
+    // Request interceptor to add auth token and log URLs for debugging
     this.client.interceptors.request.use(
       (config) => {
+        // Log the actual URL being used (helpful for debugging)
+        if (typeof window !== 'undefined') {
+          const fullUrl = config.baseURL && config.url
+            ? `${config.baseURL}${config.url.startsWith('/') ? '' : '/'}${config.url}`
+            : config.url
+          
+          // Log in production if URL looks wrong
+          if (fullUrl && fullUrl.includes('joinus.ie') && fullUrl.includes('railway.app')) {
+            console.error('[ApiClient] Detected malformed URL:', {
+              fullUrl,
+              baseURL: config.baseURL,
+              url: config.url,
+              envVar: process.env.NEXT_PUBLIC_API_URL,
+              normalizedBaseURL: this.baseURL
+            })
+          }
+        }
+        
         if (typeof window !== 'undefined') {
           const token = localStorage.getItem('access_token')
           if (token) {
