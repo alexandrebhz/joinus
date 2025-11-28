@@ -7,6 +7,30 @@ import { User } from '@/domain/entities/user.entity'
 import { ApiResponse, ApiError } from '@/domain/value-objects/api-response.vo'
 
 export class ApiClient implements IApiClient {
+  // Transform snake_case API response to camelCase frontend format
+  private transformJobData(job: any): JobResponse {
+    return {
+      id: job.id,
+      startupId: job.startup_id,
+      startupName: job.startup_name,
+      title: job.title,
+      description: job.description,
+      requirements: job.requirements,
+      jobType: job.job_type,
+      locationType: job.location_type,
+      city: job.city,
+      country: job.country,
+      salaryMin: job.salary_min,
+      salaryMax: job.salary_max,
+      currency: job.currency,
+      applicationUrl: job.application_url,
+      applicationEmail: job.application_email,
+      status: job.status,
+      expiresAt: job.expires_at,
+      createdAt: job.created_at,
+      updatedAt: job.updated_at,
+    }
+  }
   private client: AxiosInstance
   private baseURL: string
 
@@ -261,18 +285,32 @@ export class ApiClient implements IApiClient {
 
   // Job methods
   async listJobs(filters?: JobListFilters): Promise<ApiResponse<JobResponse[]>> {
-    return this.request<JobResponse[]>({
+    const response = await this.request<any[]>({
       method: 'GET',
       url: '/jobs',
       params: filters,
     })
+    
+    // Transform snake_case API response to camelCase frontend format
+    if (response.data && Array.isArray(response.data)) {
+      response.data = response.data.map(job => this.transformJobData(job))
+    }
+    
+    return response as ApiResponse<JobResponse[]>
   }
 
   async getJob(id: string): Promise<ApiResponse<JobResponse>> {
-    return this.request<JobResponse>({
+    const response = await this.request<any>({
       method: 'GET',
       url: `/jobs/${id}`,
     })
+    
+    // Transform snake_case API response to camelCase frontend format
+    if (response.data) {
+      response.data = this.transformJobData(response.data)
+    }
+    
+    return response as ApiResponse<JobResponse>
   }
 
   async createJob(data: CreateJobRequest): Promise<ApiResponse<JobResponse>> {
