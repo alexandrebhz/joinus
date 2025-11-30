@@ -351,11 +351,24 @@ export class ApiClient implements IApiClient {
 
   // Startup methods
   async listStartups(filters?: StartupListFilters): Promise<ApiResponse<StartupResponse[]>> {
-    return this.request<StartupResponse[]>({
+    const response = await this.request<any>({
       method: 'GET',
       url: '/startups',
       params: filters,
     })
+    
+    // Transform pagination meta from snake_case to camelCase
+    if (response.meta) {
+      const meta = response.meta as any
+      response.meta = {
+        page: meta.page,
+        pageSize: meta.page_size,
+        totalPages: meta.total_pages,
+        totalCount: meta.total_count,
+      }
+    }
+    
+    return response as ApiResponse<StartupResponse[]>
   }
 
   async getStartup(id: string): Promise<ApiResponse<StartupResponse>> {

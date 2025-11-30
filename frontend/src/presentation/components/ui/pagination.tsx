@@ -8,9 +8,10 @@ import { PaginationMeta } from '@/domain/value-objects/api-response.vo'
 interface PaginationProps {
   meta?: PaginationMeta
   className?: string
+  basePath?: string
 }
 
-export function Pagination({ meta, className }: PaginationProps) {
+export function Pagination({ meta, className, basePath = '/jobs' }: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -28,7 +29,7 @@ export function Pagination({ meta, className }: PaginationProps) {
     } else {
       params.set('page', page.toString())
     }
-    router.push(`/jobs?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   const getPageNumbers = () => {
