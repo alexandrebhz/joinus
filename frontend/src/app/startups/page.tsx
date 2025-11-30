@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Header } from '@/presentation/components/layout/header'
 import { Footer } from '@/presentation/components/layout/footer'
 import { StartupCard } from '@/presentation/components/startup/startup-card'
@@ -46,7 +47,20 @@ export default async function StartupsPage({ searchParams }: StartupsPageProps) 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Filters Sidebar */}
             <div className="lg:col-span-1">
-              <StartupFilters />
+              <Suspense fallback={
+                <div className="border border-secondary-200 rounded-lg p-6 bg-white">
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-secondary-200 rounded w-1/3 mb-4"></div>
+                    <div className="space-y-4">
+                      <div className="h-10 bg-secondary-100 rounded"></div>
+                      <div className="h-10 bg-secondary-100 rounded"></div>
+                      <div className="h-10 bg-secondary-100 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              }>
+                <StartupFilters />
+              </Suspense>
             </div>
 
             {/* Startups Grid */}
