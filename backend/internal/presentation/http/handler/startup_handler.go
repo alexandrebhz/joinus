@@ -118,6 +118,12 @@ func (h *StartupHandler) List(c *gin.Context) {
 	if search := c.Query("search"); search != "" {
 		filter.Search = search
 	}
+	if location := c.Query("location"); location != "" {
+		filter.Location = location
+	}
+	if companySize := c.Query("company_size"); companySize != "" {
+		filter.CompanySize = companySize
+	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))

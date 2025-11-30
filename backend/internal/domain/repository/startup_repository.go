@@ -23,9 +23,11 @@ type StartupRepository interface {
 }
 
 type StartupFilter struct {
-	Industry string
-	Status   entity.StartupStatus
-	Search   string
+	Industry   string
+	Status     entity.StartupStatus
+	Search     string
+	Location   string
+	CompanySize string
 	Pagination
 }
 

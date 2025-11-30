@@ -28,6 +28,8 @@ export interface StartupListFilters {
   industry?: string
   status?: StartupStatus
   search?: string
+  location?: string
+  company_size?: string
   page?: number
   page_size?: number
 }

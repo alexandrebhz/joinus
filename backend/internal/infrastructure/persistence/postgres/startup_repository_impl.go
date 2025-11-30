@@ -70,6 +70,14 @@ func (r *StartupRepositoryImpl) List(ctx context.Context, filter repository.Star
 		search := "%" + strings.ToLower(filter.Search) + "%"
 		query = query.Where("LOWER(name) LIKE ? OR LOWER(description) LIKE ?", search, search)
 	}
+	if filter.Location != "" {
+		location := "%" + strings.ToLower(filter.Location) + "%"
+		query = query.Where("LOWER(location) LIKE ?", location)
+	}
+	if filter.CompanySize != "" {
+		companySize := "%" + strings.ToLower(filter.CompanySize) + "%"
+		query = query.Where("LOWER(company_size) LIKE ?", companySize)
+	}
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
