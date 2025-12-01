@@ -122,11 +122,6 @@ func (r *JobRepositoryImpl) CountUnsynced(ctx context.Context) (int64, error) {
 
 // toModel converts entity to GORM model
 func (r *JobRepositoryImpl) toModel(job *entity.CrawledJob) *gorm_model.CrawledJobModel {
-	customFields := gorm_model.JSONBString{}
-	if job.CustomFields != nil {
-		customFields = gorm_model.JSONBString(job.CustomFields)
-	}
-
 	return &gorm_model.CrawledJobModel{
 		ID:                job.ID,
 		SiteID:            job.SiteID,
@@ -147,7 +142,6 @@ func (r *JobRepositoryImpl) toModel(job *entity.CrawledJob) *gorm_model.CrawledJ
 		ApplicationURL:    job.ApplicationURL,
 		ApplicationEmail:  job.ApplicationEmail,
 		ExpiresAt:         job.ExpiresAt,
-		CustomFields:      customFields,
 		RawHTML:           job.RawHTML,
 		DeduplicationHash: job.DeduplicationHash,
 		Synced:            job.Synced,
@@ -159,11 +153,6 @@ func (r *JobRepositoryImpl) toModel(job *entity.CrawledJob) *gorm_model.CrawledJ
 
 // toEntity converts GORM model to entity
 func (r *JobRepositoryImpl) toEntity(model *gorm_model.CrawledJobModel) *entity.CrawledJob {
-	customFields := make(map[string]string)
-	if model.CustomFields != nil {
-		customFields = map[string]string(model.CustomFields)
-	}
-
 	return &entity.CrawledJob{
 		ID:                model.ID,
 		SiteID:            model.SiteID,
@@ -184,7 +173,6 @@ func (r *JobRepositoryImpl) toEntity(model *gorm_model.CrawledJobModel) *entity.
 		ApplicationURL:    model.ApplicationURL,
 		ApplicationEmail:  model.ApplicationEmail,
 		ExpiresAt:         model.ExpiresAt,
-		CustomFields:      customFields,
 		RawHTML:           model.RawHTML,
 		DeduplicationHash: model.DeduplicationHash,
 		Synced:            model.Synced,

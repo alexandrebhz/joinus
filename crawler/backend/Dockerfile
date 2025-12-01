@@ -27,3 +27,4 @@ COPY --from=builder /app/crawler .
 EXPOSE 8080
 
 CMD ["./crawler"]
+

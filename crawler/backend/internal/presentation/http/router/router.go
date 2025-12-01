@@ -8,14 +8,14 @@ import (
 )
 
 // SetupRouter sets up the HTTP router
-func SetupRouter(siteHandler *handler.SiteHandler, crawlHandler *handler.CrawlHandler) *gin.Engine {
+func SetupRouter(siteHandler *handler.SiteHandler, crawlHandler *handler.CrawlHandler, crawlLogHandler *handler.CrawlLogHandler) *gin.Engine {
 	r := gin.Default()
 
-	// CORS configuration
+	// Configure CORS
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://frontend:3000"},
+		AllowOrigins:     []string{"http://localhost:3001", "http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin", "Cache-Control", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -37,6 +37,8 @@ func SetupRouter(siteHandler *handler.SiteHandler, crawlHandler *handler.CrawlHa
 			sites.PUT("/:id", siteHandler.Update)
 			sites.DELETE("/:id", siteHandler.Delete)
 			sites.POST("/:id/crawl", crawlHandler.Execute)
+			sites.GET("/:id/logs", crawlLogHandler.GetLogs)
+			sites.GET("/:id/logs/latest", crawlLogHandler.GetLatestLog)
 		}
 	}
 

@@ -1,101 +1,36 @@
-# Frontend - Job Crawler System
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A Next.js frontend application built with Clean Architecture, DDD principles, and DRY practices.
+## Getting Started
 
-## Architecture
-
-The frontend follows Clean Architecture principles with clear separation of concerns:
-
-```
-frontend/
-├── src/
-│   ├── domain/              # Domain Layer (Pure Business Logic)
-│   │   ├── entities/        # Domain entities
-│   │   ├── value-objects/   # Value objects
-│   │   └── repositories/    # Repository interfaces
-│   ├── application/         # Application Layer (Use Cases)
-│   │   └── use-cases/       # Business use cases
-│   ├── infrastructure/      # Infrastructure Layer
-│   │   ├── http/           # HTTP client implementations
-│   │   └── di/             # Dependency injection container
-│   └── presentation/        # Presentation Layer
-│       ├── components/      # React components
-│       └── hooks/          # Custom React hooks
-└── app/                     # Next.js app directory
-```
-
-## Key Principles
-
-### Domain-Driven Design (DDD)
-- **Entities**: Core business objects (`CrawlSite`, `CrawlResult`)
-- **Value Objects**: Immutable data structures (`CreateSiteInput`, `UpdateSiteInput`)
-- **Repositories**: Interfaces defining data access contracts
-
-### Clean Architecture
-- **Dependency Rule**: Dependencies point inward (Domain ← Application ← Infrastructure ← Presentation)
-- **Separation of Concerns**: Each layer has a single responsibility
-- **Testability**: Easy to mock dependencies and test in isolation
-
-### DRY (Don't Repeat Yourself)
-- **Reusable Components**: `SiteCard`, `SiteForm` can be used across pages
-- **Custom Hooks**: `useSites` encapsulates site management logic
-- **Shared Utilities**: Common logic extracted to use cases
-
-## Project Structure
-
-### Domain Layer
-- **Entities**: Pure TypeScript interfaces representing domain concepts
-- **Value Objects**: Input/output DTOs with validation
-- **Repositories**: Interfaces for data access (no implementation details)
-
-### Application Layer
-- **Use Cases**: Business logic orchestration
-- Each use case handles a single business operation
-- Validates domain rules before delegating to repositories
-
-### Infrastructure Layer
-- **HTTP Client**: Implements repository interfaces using fetch API
-- **DI Container**: Manages dependency injection and singleton instances
-
-### Presentation Layer
-- **Components**: Reusable UI components
-- **Hooks**: Custom React hooks for state management
-- **Pages**: Next.js pages that compose components and hooks
-
-## Usage
-
-### Development
+First, run the development server:
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-### Build
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```bash
-npm run build
-npm start
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### Docker
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-```bash
-docker-compose up frontend
-```
+## Learn More
 
-## Environment Variables
+To learn more about Next.js, take a look at the following resources:
 
-Create a `.env.local` file:
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8081
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Key Features
+## Deploy on Vercel
 
-- ✅ Clean Architecture with proper layer separation
-- ✅ DDD principles with entities and value objects
-- ✅ Dependency Injection container
-- ✅ Reusable components and hooks
-- ✅ Type-safe with TypeScript
-- ✅ Responsive UI with Tailwind CSS
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

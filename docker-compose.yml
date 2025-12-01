@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   postgres:
@@ -90,6 +89,46 @@ services:
       - NODE_ENV=production
     depends_on:
       - api
+    restart: unless-stopped
+
+  crawler-api:
+    build:
+      context: ./crawler/backend
+      dockerfile: Dockerfile
+    container_name: crawler_api
+    ports:
+      - "8081:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_URL=${CRAWLER_DATABASE_URL:-postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/crawler?sslmode=disable}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=crawler
+      - DB_SSL_MODE=${DB_SSL_MODE:-disable}
+      - BACKEND_URL=${BACKEND_URL:-http://api:8080}
+      - BACKEND_TOKEN=${BACKEND_TOKEN:-}
+      - ENVIRONMENT=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  crawler-frontend:
+    build:
+      context: ./crawler/frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_CRAWLER_API_URL=${NEXT_PUBLIC_CRAWLER_API_URL:-http://crawler-api:8080}
+    container_name: crawler_frontend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_CRAWLER_API_URL=${NEXT_PUBLIC_CRAWLER_API_URL:-http://crawler-api:8080}
+    depends_on:
+      - crawler-api
     restart: unless-stopped
 
 volumes:

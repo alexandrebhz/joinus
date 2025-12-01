@@ -27,7 +27,6 @@ type CrawledJobModel struct {
 	ApplicationURL    *string        `gorm:"type:text"`
 	ApplicationEmail  *string        `gorm:"type:varchar(255)"`
 	ExpiresAt         *time.Time     `gorm:"type:timestamp"`
-	CustomFields      JSONBString    `gorm:"type:jsonb"`
 	RawHTML           string         `gorm:"type:text"`
 	DeduplicationHash string         `gorm:"type:varchar(255);index"`
 	Synced            bool           `gorm:"default:false;index"`
