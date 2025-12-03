@@ -24,3 +24,4 @@ func (uc *GetLatestLogUseCase) Execute(ctx context.Context, siteID string) (*ent
 	return uc.crawlLogRepo.FindLatestBySiteID(ctx, siteID)
 }
 
+

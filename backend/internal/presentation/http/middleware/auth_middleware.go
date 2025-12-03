@@ -49,5 +49,13 @@ func GetUserID(c *gin.Context) string {
 	return userID.(string)
 }
 
+func GetUserRole(c *gin.Context) string {
+	role, exists := c.Get(UserRoleKey)
+	if !exists {
+		return ""
+	}
+	return role.(string)
+}
+
 
 

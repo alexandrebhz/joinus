@@ -74,7 +74,7 @@ func main() {
 	loginUC := authusecase.NewLoginUseCase(userRepo, jwtService, logger)
 	refreshTokenUC := authusecase.NewRefreshTokenUseCase(userRepo, jwtService, logger)
 
-	createStartupUC := startupusecase.NewCreateStartupUseCase(startupRepo, memberRepo, tokenGen, logger)
+	createStartupUC := startupusecase.NewCreateStartupUseCase(startupRepo, memberRepo, userRepo, tokenGen, logger)
 	updateStartupUC := startupusecase.NewUpdateStartupUseCase(startupRepo, logger)
 	getStartupUC := startupusecase.NewGetStartupUseCase(startupRepo, logger)
 	listStartupsUC := startupusecase.NewListStartupsUseCase(startupRepo, logger)

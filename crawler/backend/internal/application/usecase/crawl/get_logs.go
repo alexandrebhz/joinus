@@ -24,3 +24,4 @@ func (uc *GetLogsUseCase) Execute(ctx context.Context, siteID string, limit int)
 	return uc.crawlLogRepo.FindBySiteID(ctx, siteID, limit)
 }
 
+

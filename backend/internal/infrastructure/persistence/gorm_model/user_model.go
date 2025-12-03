@@ -9,7 +9,7 @@ type User struct {
 	Email     string    `gorm:"type:varchar(255);uniqueIndex;not null"`
 	Password  string    `gorm:"type:varchar(255);not null"`
 	Name      string    `gorm:"type:varchar(255);not null"`
-	Role      string    `gorm:"type:varchar(50);not null;default:'member'"`
+	Role      string    `gorm:"type:varchar(50);not null;default:'candidate'"`
 	StartupID *string   `gorm:"type:uuid"`
 	Status    string    `gorm:"type:varchar(50);not null;default:'active'"`
 	CreatedAt time.Time

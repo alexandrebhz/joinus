@@ -9,6 +9,7 @@ import (
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
 	"github.com/startup-job-board/backend/internal/application/port"
+	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/logger"
 	"github.com/startup-job-board/backend/pkg/utils"
 )
@@ -16,6 +17,7 @@ import (
 type CreateStartupUseCase struct {
 	startupRepo repository.StartupRepository
 	memberRepo  repository.StartupMemberRepository
+	userRepo    repository.UserRepository
 	tokenGen    port.TokenService
 	logger      logger.Logger
 }
@@ -23,18 +25,28 @@ type CreateStartupUseCase struct {
 func NewCreateStartupUseCase(
 	startupRepo repository.StartupRepository,
 	memberRepo repository.StartupMemberRepository,
+	userRepo repository.UserRepository,
 	tokenGen port.TokenService,
 	logger logger.Logger,
 ) *CreateStartupUseCase {
 	return &CreateStartupUseCase{
 		startupRepo: startupRepo,
 		memberRepo:  memberRepo,
+		userRepo:    userRepo,
 		tokenGen:    tokenGen,
 		logger:      logger,
 	}
 }
 
-func (uc *CreateStartupUseCase) Execute(ctx context.Context, input dto.CreateStartupInput, userID string) (*dto.StartupOutput, error) {
+func (uc *CreateStartupUseCase) Execute(ctx context.Context, input dto.CreateStartupInput, userID string, userRole entity.UserRole) (*dto.StartupOutput, error) {
+	// Check if user has permission to create a startup
+	// Admins can always create startups
+	// Candidates can create startups (they will become startup_owner)
+	// Startup owners can create additional startups
+	if userRole != entity.UserRoleAdmin && userRole != entity.UserRoleStartupOwner && userRole != entity.UserRoleCandidate {
+		return nil, errors.NewForbiddenError("only admins, startup owners, and candidates can create startups")
+	}
+
 	// Generate API token
 	tokenStr, err := uc.tokenGen.GenerateToken()
 	if err != nil {
@@ -87,6 +99,22 @@ func (uc *CreateStartupUseCase) Execute(ctx context.Context, input dto.CreateSta
 		// Rollback startup creation
 		uc.startupRepo.Delete(ctx, startup.ID)
 		return nil, err
+	}
+
+	// Update user role to startup_owner if they were a candidate
+	if userRole == entity.UserRoleCandidate {
+		user, err := uc.userRepo.FindByID(ctx, userID)
+		if err != nil {
+			uc.logger.Warn("Failed to find user to update role: %v", err)
+			// Don't fail the request if we can't update the role
+		} else {
+			user.Role = entity.UserRoleStartupOwner
+			user.UpdatedAt = time.Now()
+			if err := uc.userRepo.Update(ctx, user); err != nil {
+				uc.logger.Warn("Failed to update user role to startup_owner: %v", err)
+				// Don't fail the request if we can't update the role
+			}
+		}
 	}
 
 	return uc.toOutput(startup), nil

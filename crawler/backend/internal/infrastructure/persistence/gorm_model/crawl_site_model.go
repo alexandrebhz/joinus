@@ -14,7 +14,7 @@ type CrawlSiteModel struct {
 	Name             string         `gorm:"type:varchar(255);not null"`
 	BaseURL          string         `gorm:"type:text;not null"`
 	BackendStartupID string         `gorm:"type:uuid;not null"`
-	Active           bool           `gorm:"default:true"`
+	Active           bool           `gorm:"default:true;index"`
 	Schedule         string         `gorm:"type:varchar(100);not null"`
 	LastCrawledAt    *time.Time     `gorm:"type:timestamp"`
 	NextCrawlAt      *time.Time     `gorm:"type:timestamp"`

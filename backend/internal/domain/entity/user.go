@@ -19,7 +19,8 @@ type UserRole string
 const (
 	UserRoleAdmin        UserRole = "admin"
 	UserRoleStartupOwner UserRole = "startup_owner"
-	UserRoleMember       UserRole = "member"
+	UserRoleCandidate    UserRole = "candidate"
+	UserRoleMember       UserRole = "member" // Deprecated: use candidate instead
 )
 
 type UserStatus string

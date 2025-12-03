@@ -12,6 +12,7 @@ import (
 	"github.com/startup-job-board/backend/internal/presentation/http/middleware"
 	"github.com/startup-job-board/backend/internal/presentation/http/response"
 	"github.com/startup-job-board/backend/internal/presentation/http/validator"
+	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/utils"
 )
 
@@ -52,9 +53,24 @@ func (h *StartupHandler) Create(c *gin.Context) {
 	}
 
 	userID := middleware.GetUserID(c)
-	result, err := h.createUseCase.Execute(c.Request.Context(), input, userID)
+	userRoleStr := middleware.GetUserRole(c)
+	userRole := entity.UserRole(userRoleStr)
+	
+	result, err := h.createUseCase.Execute(c.Request.Context(), input, userID, userRole)
 	if err != nil {
-		response.Error(c, http.StatusBadRequest, err)
+		// Check error type to return appropriate status code
+		if appErr, ok := err.(*errors.AppError); ok {
+			switch appErr.Code {
+			case "FORBIDDEN":
+				response.Error(c, http.StatusForbidden, err)
+			case "NOT_FOUND":
+				response.Error(c, http.StatusNotFound, err)
+			default:
+				response.Error(c, http.StatusBadRequest, err)
+			}
+		} else {
+			response.Error(c, http.StatusBadRequest, err)
+		}
 		return
 	}
 

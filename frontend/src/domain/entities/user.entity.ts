@@ -9,6 +9,6 @@ export interface User {
   updatedAt: string
 }
 
-export type UserRole = 'admin' | 'startup_owner' | 'member'
+export type UserRole = 'admin' | 'startup_owner' | 'candidate' | 'member'
 export type UserStatus = 'active' | 'pending' | 'inactive'
 

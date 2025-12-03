@@ -47,7 +47,7 @@ func (uc *RegisterUseCase) Execute(ctx context.Context, input dto.RegisterInput)
 		Email:     input.Email,
 		Password:  string(hashedPassword),
 		Name:      input.Name,
-		Role:      entity.UserRoleMember,
+		Role:      entity.UserRoleCandidate, // Default role for new users
 		Status:    entity.UserStatusActive,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

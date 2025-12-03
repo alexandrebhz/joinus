@@ -14,3 +14,4 @@ type CrawlLogRepository interface {
 	FindLatestBySiteID(ctx context.Context, siteID string) (*entity.CrawlLog, error)
 }
 
+
