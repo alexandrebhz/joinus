@@ -60,3 +60,4 @@ func (h *CrawlLogHandler) GetLatestLog(c *gin.Context) {
 
 
 
+

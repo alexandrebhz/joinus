@@ -28,3 +28,4 @@ func (uc *GetLatestLogUseCase) Execute(ctx context.Context, siteID string) (*ent
 
 
 
+
