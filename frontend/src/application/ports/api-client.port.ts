@@ -1,6 +1,7 @@
 import { AuthResponse, LoginRequest, RegisterRequest } from '../dto/auth.dto'
 import { JobResponse, CreateJobRequest, UpdateJobRequest, JobListFilters } from '../dto/job.dto'
 import { StartupResponse, CreateStartupRequest, UpdateStartupRequest, StartupListFilters } from '../dto/startup.dto'
+import { CreateContactRequest, ContactResponse } from '../dto/contact.dto'
 import { User } from '@/domain/entities/user.entity'
 import { ApiResponse } from '@/domain/value-objects/api-response.vo'
 
@@ -27,5 +28,8 @@ export interface IApiClient {
 
   // Files
   uploadFile(file: File): Promise<ApiResponse<{ url: string; id: string }>>
+
+  // Contact
+  createContact(data: CreateContactRequest): Promise<ApiResponse<ContactResponse>>
 }
 

@@ -3,6 +3,7 @@ import { IApiClient } from '@/application/ports/api-client.port'
 import { AuthResponse, LoginRequest, RegisterRequest } from '@/application/dto/auth.dto'
 import { JobResponse, CreateJobRequest, UpdateJobRequest, JobListFilters } from '@/application/dto/job.dto'
 import { StartupResponse, CreateStartupRequest, UpdateStartupRequest, StartupListFilters } from '@/application/dto/startup.dto'
+import { CreateContactRequest, ContactResponse } from '@/application/dto/contact.dto'
 import { User } from '@/domain/entities/user.entity'
 import { ApiResponse, ApiError } from '@/domain/value-objects/api-response.vo'
 
@@ -411,6 +412,15 @@ export class ApiClient implements IApiClient {
       method: 'POST',
       url: '/upload',
       data: formData,
+    })
+  }
+
+  // Contact methods
+  async createContact(data: CreateContactRequest): Promise<ApiResponse<ContactResponse>> {
+    return this.request<ContactResponse>({
+      method: 'POST',
+      url: '/contact',
+      data,
     })
   }
 }
