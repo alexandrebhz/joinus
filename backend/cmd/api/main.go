@@ -10,6 +10,7 @@ import (
 	"time"
 
 	authusecase "github.com/startup-job-board/backend/internal/application/usecase/auth"
+	contactusecase "github.com/startup-job-board/backend/internal/application/usecase/contact"
 	fileusecase "github.com/startup-job-board/backend/internal/application/usecase/file"
 	jobusecase "github.com/startup-job-board/backend/internal/application/usecase/job"
 	startupusecase "github.com/startup-job-board/backend/internal/application/usecase/startup"
@@ -55,6 +56,7 @@ func main() {
 	memberRepo := postgres.NewStartupMemberRepository(db)
 	_ = postgres.NewInvitationRepository(db) // Reserved for future use
 	fileRepo := postgres.NewFileRepository(db)
+	contactRepo := postgres.NewContactRepository(db)
 
 	// Initialize services
 	jwtService := auth.NewJWTService(cfg.JWT)
@@ -87,12 +89,15 @@ func main() {
 	// Create upload use case (will handle nil storage gracefully)
 	uploadFileUC := fileusecase.NewUploadFileUseCase(fileRepo, storageService, logger)
 
+	createContactUC := contactusecase.NewCreateContactUseCase(contactRepo, logger)
+
 	// Initialize handlers
 	validator := validator.NewValidator()
 	authHandler := handler.NewAuthHandler(registerUC, loginUC, refreshTokenUC, validator)
 	startupHandler := handler.NewStartupHandler(createStartupUC, updateStartupUC, getStartupUC, listStartupsUC, validator)
 	jobHandler := handler.NewJobHandler(createJobUC, updateJobUC, listJobsUC, deleteJobUC, jobRepo, startupRepo, validator)
 	fileHandler := handler.NewFileHandler(uploadFileUC)
+	contactHandler := handler.NewContactHandler(createContactUC, validator)
 
 	// Initialize router
 	r := router.NewRouter(
@@ -100,6 +105,7 @@ func main() {
 		startupHandler,
 		jobHandler,
 		fileHandler,
+		contactHandler,
 		jwtService,
 		startupRepo,
 		cfg.CORS.AllowedOrigins,
@@ -153,6 +159,6 @@ func autoMigrate(db *gorm.DB) error {
 		&gorm_model.Invitation{},
 		&gorm_model.Job{},
 		&gorm_model.File{},
+		&gorm_model.Contact{},
 	)
 }
-

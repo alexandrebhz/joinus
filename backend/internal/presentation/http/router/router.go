@@ -13,6 +13,7 @@ func NewRouter(
 	startupHandler *handler.StartupHandler,
 	jobHandler *handler.JobHandler,
 	fileHandler *handler.FileHandler,
+	contactHandler *handler.ContactHandler,
 	jwtService port.JWTService,
 	startupRepo repository.StartupRepository,
 	allowedOrigins []string,
@@ -43,6 +44,9 @@ func NewRouter(
 		// Public jobs
 		public.GET("/jobs", jobHandler.List)
 		public.GET("/jobs/:id", jobHandler.Get)
+
+		// Contact
+		public.POST("/contact", contactHandler.Create)
 	}
 
 	// Protected routes (JWT)
