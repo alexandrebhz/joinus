@@ -10,9 +10,9 @@ import { Card, CardContent } from '@/presentation/components/ui/card'
 import { Building2, MapPin, Calendar, Users, Briefcase, ExternalLink } from 'lucide-react'
 
 interface StartupDetailPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 async function getStartup(slug: string) {
@@ -34,7 +34,8 @@ async function getStartupJobs(startupId: string) {
 }
 
 export default async function StartupDetailPage({ params }: StartupDetailPageProps) {
-  const startup = await getStartup(params.slug)
+  const { slug } = await params
+  const startup = await getStartup(slug)
 
   if (!startup) {
     notFound()
