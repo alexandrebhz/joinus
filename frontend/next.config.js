@@ -4,7 +4,6 @@ const nextConfig = {
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
   
   // Memory optimizations
-  swcMinify: true,
   compress: true,
   
   // Optimize production builds
@@ -16,7 +15,7 @@ const nextConfig = {
   },
   
   images: {
-    domains: ['localhost'],
+    // Use remotePatterns instead of deprecated domains
     remotePatterns: [
       {
         protocol: 'http',
@@ -30,7 +29,11 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
   
-  // Webpack optimizations
+  // Turbopack config (Next.js 16 uses Turbopack by default)
+  // Empty config allows webpack to be used when --webpack flag is passed
+  turbopack: {},
+  
+  // Webpack optimizations (used when --webpack flag is passed)
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Reduce client bundle size
