@@ -20,7 +20,7 @@
     "zod": "^4.3.4",
     "@hookform/resolvers": "^3.3.4",
     "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.1",
+    "tailwind-merge": "^3.4.0",
     "lucide-react": "^0.562.0"
   },
   "devDependencies": {
