@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # Install git and ca-certificates (needed for go mod download with private repos)
 RUN apk add --no-cache git ca-certificates
