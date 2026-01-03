@@ -3,9 +3,10 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
-# Use npm install (will generate package-lock.json if it doesn't exist)
-RUN npm install
+COPY package.json package-lock.json* ./
+
+# Install dependencies (need dev dependencies for build)
+RUN npm ci --prefer-offline --no-audit || npm install --prefer-offline --no-audit
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -23,7 +24,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Set NEXT_PUBLIC_API_URL as environment variable for build time
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-# Build the application
+# Build the application with memory optimizations
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 RUN npm run build
 
 # Stage 3: Runner
@@ -52,5 +54,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+# Use node with optimized flags for production
+CMD ["node", "--max-old-space-size=512", "server.js"]
 
