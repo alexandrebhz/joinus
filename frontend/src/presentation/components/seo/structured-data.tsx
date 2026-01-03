@@ -64,8 +64,8 @@ export function OrganizationStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'JoinUs',
-    url: 'https://joinus.com',
-    logo: 'https://joinus.com/logo.png',
+    url: 'https://joinus.ie',
+    logo: 'https://joinus.ie/logo.png',
     description: 'Startup job board connecting talented professionals with innovative startups',
     sameAs: [
       'https://twitter.com/joinus',
@@ -74,7 +74,7 @@ export function OrganizationStructuredData() {
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Customer Service',
-      email: 'hello@joinus.com',
+      email: 'hello@joinus.ie',
     },
   }
 
@@ -91,12 +91,12 @@ export function WebSiteStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'JoinUs',
-    url: 'https://joinus.com',
+    url: 'https://joinus.ie',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://joinus.com/jobs?search={search_term_string}',
+        urlTemplate: 'https://joinus.ie/jobs?search={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },

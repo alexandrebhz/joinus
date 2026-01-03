@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const siteConfig = {
   name: 'JoinUs',
   description: 'Discover your next career opportunity at innovative startups. Browse remote, hybrid, and onsite tech jobs from fast-growing companies. Join thousands of professionals finding their dream roles.',
-  url: 'https://joinus.com', // Update with your actual domain
+  url: 'https://joinus.ie',
   ogImage: '/og-image.jpg', // You'll need to create this
   links: {
     twitter: 'https://twitter.com/joinus',

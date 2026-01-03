@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import axios from 'axios'
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://joinus.com'
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://joinus.ie'
 
 // Server-side API client for fetching data
 async function fetchJobs() {

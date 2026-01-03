@@ -150,8 +150,8 @@ export default function ContactPage() {
               <h3 className="font-semibold text-secondary-900 mb-2">Email Us</h3>
               <p className="text-sm text-secondary-600">
                 For general inquiries, reach out to us at{' '}
-                <a href="mailto:support@joinus.io" className="text-primary-600 hover:text-primary-700">
-                  support@joinus.io
+                <a href="mailto:support@joinus.ie" className="text-primary-600 hover:text-primary-700">
+                  support@joinus.ie
                 </a>
               </p>
             </Card>
@@ -168,3 +168,4 @@ export default function ContactPage() {
     </div>
   )
 }
+

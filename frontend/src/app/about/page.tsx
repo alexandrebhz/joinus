@@ -30,7 +30,7 @@ export default function AboutPage() {
                 Connecting talented professionals with innovative startups
               </p>
               <p className="text-lg text-secondary-600 mb-8">
-                We're on a mission to make it easier than ever to discover and land your dream job at fast-growing startups.
+                We help you discover and land your dream job at fast-growing startups.
               </p>
             </div>
           </div>
@@ -45,27 +45,23 @@ export default function AboutPage() {
                   Our Mission
                 </h2>
                 <p className="text-lg text-secondary-600 leading-relaxed">
-                  JoinUs was born from a simple belief: finding your next career opportunity shouldn't be complicated. 
-                  We've created a platform that brings together the best of both worlds—talented professionals seeking 
-                  meaningful work and innovative startups looking for exceptional team members.
+                  JoinUs started with a simple idea: finding your next job shouldn't be complicated. 
+                  We built a platform that connects talented professionals with innovative startups that are actually hiring.
                 </p>
               </div>
 
               <div className="prose prose-lg max-w-none text-secondary-700 space-y-6">
                 <p>
-                  In today's fast-paced tech landscape, startups are reshaping industries and creating new opportunities 
-                  every day. Yet, discovering these opportunities and connecting with the right companies can be overwhelming. 
-                  That's where JoinUs comes in.
+                  Startups are creating new opportunities every day, but finding the right ones can be overwhelming. 
+                  That's where we come in.
                 </p>
                 <p>
-                  We curate job listings from verified startups, ensuring every opportunity is genuine and every company 
-                  is actively hiring. We provide deep insights into company culture, team dynamics, and growth potential 
-                  so you can make informed decisions about your next career move.
+                  We verify every startup and job listing so you know they're real companies that are actually hiring. 
+                  You can see company details, team size, and what they're building before you apply.
                 </p>
                 <p>
-                  Whether you're a software engineer looking to build the next big thing, a product manager ready to 
-                  shape innovative products, a designer wanting to create beautiful experiences, or a marketer eager to 
-                  tell compelling stories—JoinUs is your gateway to startup opportunities.
+                  Whether you're a developer, designer, product manager, or marketer, JoinUs helps you find startup jobs 
+                  that match what you're looking for.
                 </p>
               </div>
             </div>
@@ -90,29 +86,28 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-secondary-900 mb-3">Curated Job Listings</h3>
                 <p className="text-secondary-600 leading-relaxed">
-                  Every job is hand-verified from real startups. No spam, no scams—just genuine opportunities 
-                  from companies actively hiring. We ensure quality over quantity, so you can focus on opportunities 
-                  that truly matter.
+                  Every job comes from a real startup we've verified. No spam, no scams. Just real opportunities 
+                  from companies that are actually hiring. We focus on quality, so you can focus on finding the right fit.
                 </p>
               </div>
               <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-600 mb-4">
                   <Building2 className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-semibold text-secondary-900 mb-3">Deep Company Insights</h3>
+                <h3 className="text-xl font-semibold text-secondary-900 mb-3">Company Insights</h3>
                 <p className="text-secondary-600 leading-relaxed">
-                  Get the full picture before you apply. Browse company profiles, team size, funding stage, and 
-                  culture to find your perfect match. We believe informed decisions lead to better career outcomes.
+                  See what you're getting into before you apply. Check out company profiles, team size, and what 
+                  they're working on. The more you know, the better your decision.
                 </p>
               </div>
               <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary-600 mb-4">
                   <TrendingUp className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-semibold text-secondary-900 mb-3">Early-Stage Opportunities</h3>
+                <h3 className="text-xl font-semibold text-secondary-900 mb-3">Early Stage Opportunities</h3>
                 <p className="text-secondary-600 leading-relaxed">
-                  Join startups at the ground floor. Get equity, make an impact, and accelerate your career at 
-                  companies that are changing industries. Be part of something bigger from day one.
+                  Find startups that are just getting started. Get equity, make a real impact, and grow your career 
+                  at companies that are doing something different.
                 </p>
               </div>
             </div>
@@ -139,10 +134,10 @@ export default function AboutPage() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">Trust & Transparency</h3>
+                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">Trust and Transparency</h3>
                     <p className="text-secondary-600">
-                      We verify every startup and job listing to ensure authenticity. You can trust that every 
-                      opportunity is real and every company is legitimate.
+                      We check every startup and job listing. You can trust that every opportunity is real and 
+                      every company is legit.
                     </p>
                   </div>
                 </div>
@@ -153,10 +148,9 @@ export default function AboutPage() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">User-First Approach</h3>
+                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">User First</h3>
                     <p className="text-secondary-600">
-                      Your success is our success. We're constantly improving our platform based on feedback 
-                      from job seekers and startups alike.
+                      We listen to what you need. Your feedback helps us make the platform better for everyone.
                     </p>
                   </div>
                 </div>
@@ -169,8 +163,8 @@ export default function AboutPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-secondary-900 mb-2">Quality Over Quantity</h3>
                     <p className="text-secondary-600">
-                      We'd rather show you 100 great opportunities than 1000 mediocre ones. Every listing 
-                      is carefully curated to match your career goals.
+                      We'd rather show you 100 good opportunities than 1000 bad ones. Every listing 
+                      is checked to make sure it's worth your time.
                     </p>
                   </div>
                 </div>
@@ -181,10 +175,10 @@ export default function AboutPage() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">Innovation & Growth</h3>
+                    <h3 className="text-lg font-semibold text-secondary-900 mb-2">Always Improving</h3>
                     <p className="text-secondary-600">
-                      We're always evolving. As the startup ecosystem grows, so do we—introducing new features 
-                      and tools to make your job search even better.
+                      We're always working on new features. As startups grow, we grow too, adding tools 
+                      to help you find better jobs.
                     </p>
                   </div>
                 </div>
@@ -230,7 +224,7 @@ export default function AboutPage() {
                     <h3 className="font-semibold text-secondary-900">100% Free to Apply</h3>
                   </div>
                   <p className="text-sm text-secondary-600">
-                    Browse jobs, create your profile, and apply—all completely free. No hidden fees, ever.
+                    Browse jobs, create your profile, and apply. All completely free. No hidden fees, ever.
                   </p>
                 </div>
                 <div className="bg-white p-6 rounded-lg border border-secondary-200">
@@ -239,7 +233,7 @@ export default function AboutPage() {
                     <h3 className="font-semibold text-secondary-900">Direct Applications</h3>
                   </div>
                   <p className="text-sm text-secondary-600">
-                    Apply directly to startups. No middlemen, no delays—just you and the company.
+                    Apply directly to startups. No middlemen, no delays. Just you and the company.
                   </p>
                 </div>
               </div>
@@ -254,10 +248,10 @@ export default function AboutPage() {
               Ready to Find Your Next Opportunity?
             </h2>
             <p className="text-xl text-primary-100 mb-6 max-w-2xl mx-auto">
-              Join thousands of software engineers, product managers, designers, and marketers who found their dream jobs through JoinUs.
+              Join developers, designers, product managers, and marketers who found their next job here.
             </p>
             <p className="text-primary-200 mb-10 max-w-xl mx-auto">
-              Create your free account in 30 seconds. No credit card required. Start applying to top startup jobs today.
+              Sign up in 30 seconds. No credit card needed. Start applying to startup jobs today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
               <Link href="/register">
@@ -282,3 +276,4 @@ export default function AboutPage() {
     </div>
   )
 }
+
