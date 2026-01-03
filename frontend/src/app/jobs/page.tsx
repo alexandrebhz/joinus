@@ -8,7 +8,7 @@ import { apiClient } from '@/infrastructure/api/api-client'
 import { JobSortControls } from '@/presentation/components/job/job-sort-controls'
 
 interface JobsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string
     job_type?: string
     location_type?: string
@@ -20,7 +20,7 @@ interface JobsPageProps {
     order_by?: string
     order_dir?: 'ASC' | 'DESC'
     page?: string
-  }
+  }>
 }
 
 async function getJobs(filters: any) {
@@ -55,19 +55,20 @@ async function getJobs(filters: any) {
 }
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
-  const { jobs, meta } = await getJobs(searchParams)
+  const params = await searchParams
+  const { jobs, meta } = await getJobs(params)
   
   const activeFiltersCount = [
-    searchParams.search,
-    searchParams.job_type,
-    searchParams.location_type,
-    searchParams.country,
-    searchParams.city,
-    searchParams.salary_min,
-    searchParams.salary_max,
-    searchParams.currency,
-    searchParams.order_by && searchParams.order_by !== 'created_at' ? searchParams.order_by : null,
-    searchParams.order_dir && searchParams.order_dir !== 'DESC' ? searchParams.order_dir : null,
+    params.search,
+    params.job_type,
+    params.location_type,
+    params.country,
+    params.city,
+    params.salary_min,
+    params.salary_max,
+    params.currency,
+    params.order_by && params.order_by !== 'created_at' ? params.order_by : null,
+    params.order_dir && params.order_dir !== 'DESC' ? params.order_dir : null,
   ].filter(Boolean).length
 
   return (

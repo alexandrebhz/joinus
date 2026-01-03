@@ -8,14 +8,14 @@ import { apiClient } from '@/infrastructure/api/api-client'
 import { StartupStatus } from '@/domain/entities/startup.entity'
 
 interface StartupsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string
     industry?: string
     status?: StartupStatus
     location?: string
     company_size?: string
     page?: string
-  }
+  }>
 }
 
 async function getStartups(filters: any) {
@@ -38,7 +38,8 @@ async function getStartups(filters: any) {
 }
 
 export default async function StartupsPage({ searchParams }: StartupsPageProps) {
-  const { startups, meta } = await getStartups(searchParams)
+  const params = await searchParams
+  const { startups, meta } = await getStartups(params)
 
   return (
     <div className="min-h-screen flex flex-col">
