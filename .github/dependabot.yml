@@ -1,0 +1,71 @@
+version: 2
+updates:
+  # Frontend npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(frontend)"
+      include: "scope"
+
+  # Crawler frontend npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/crawler/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "crawler"
+      - "frontend"
+    commit-message:
+      prefix: "chore(crawler-frontend)"
+      include: "scope"
+
+  # Backend Go dependencies
+  - package-ecosystem: "gomod"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "backend"
+      - "go"
+    commit-message:
+      prefix: "chore(backend)"
+      include: "scope"
+
+  # Crawler backend Go dependencies
+  - package-ecosystem: "gomod"
+    directory: "/crawler/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "crawler"
+      - "backend"
+      - "go"
+    commit-message:
+      prefix: "chore(crawler-backend)"
+      include: "scope"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(docker)"
+      include: "scope"
+
