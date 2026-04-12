@@ -1,42 +1,66 @@
 import { MetadataRoute } from 'next'
-import axios from 'axios'
+import { apiClient } from '@/infrastructure/api/api-client'
+import type { PaginationMeta } from '@/domain/value-objects/api-response.vo'
+import type { Startup } from '@/domain/entities/startup.entity'
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://joinus.ie'
 
-// Server-side API client for fetching data
-async function fetchJobs() {
+/** Avoid runaway loops if the API omits pagination meta. */
+const MAX_SITEMAP_PAGES = 500
+const SITEMAP_PAGE_SIZE = 100
+
+async function fetchAllPages<T>(
+  load: (page: number) => Promise<{ data?: T[]; meta?: PaginationMeta }>,
+): Promise<T[]> {
+  const out: T[] = []
+  for (let page = 1; page <= MAX_SITEMAP_PAGES; page++) {
+    const { data, meta } = await load(page)
+    const batch = data ?? []
+    out.push(...batch)
+    if (batch.length === 0) break
+    if (meta && page >= meta.totalPages) break
+    if (batch.length < SITEMAP_PAGE_SIZE) break
+  }
+  return out
+}
+
+async function fetchJobsForSitemap() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    const response = await axios.get(`${apiUrl}/api/v1/jobs`, {
-      params: {
-        page_size: 1000, // Fetch a large number of jobs
-        page: 1,
-      },
-      timeout: 10000, // 10 second timeout
-    })
-    return response.data?.data || []
+    return await fetchAllPages((page) =>
+      apiClient.listJobs({
+        page,
+        page_size: SITEMAP_PAGE_SIZE,
+      }),
+    )
   } catch (error) {
     console.error('Error fetching jobs for sitemap:', error)
     return []
   }
 }
 
-async function fetchStartups() {
+async function fetchStartupsForSitemap() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    const response = await axios.get(`${apiUrl}/api/v1/startups`, {
-      params: {
-        page_size: 1000, // Fetch a large number of startups
-        page: 1,
-      },
-      timeout: 10000, // 10 second timeout
-    })
-    return response.data?.data || []
+    return await fetchAllPages((page) =>
+      apiClient.listStartups({
+        page,
+        page_size: SITEMAP_PAGE_SIZE,
+      }),
+    )
   } catch (error) {
     console.error('Error fetching startups for sitemap:', error)
     return []
   }
 }
+
+/** API list payloads use snake_case dates; entity types use camelCase. */
+function startupLastModified(startup: Startup): Date {
+  const s = startup as Startup & { updated_at?: string; created_at?: string }
+  const iso = s.updatedAt ?? s.updated_at ?? s.createdAt ?? s.created_at
+  return new Date(iso || Date.now())
+}
+
+/** Build sitemap at request time so new startups/jobs appear without a rebuild. */
+export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages
@@ -73,30 +97,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Fetch dynamic content
   const [jobs, startups] = await Promise.all([
-    fetchJobs(),
-    fetchStartups(),
+    fetchJobsForSitemap(),
+    fetchStartupsForSitemap(),
   ])
 
-  // Job pages
-  const jobPages: MetadataRoute.Sitemap = jobs.map((job: any) => ({
+  const jobPages: MetadataRoute.Sitemap = jobs.map((job) => ({
     url: `${baseUrl}/jobs/${job.id}`,
-    lastModified: job.updated_at ? new Date(job.updated_at) : new Date(job.created_at || Date.now()),
+    lastModified: job.updatedAt ? new Date(job.updatedAt) : new Date(job.createdAt || Date.now()),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }))
 
-  // Startup pages
   const startupPages: MetadataRoute.Sitemap = startups
-    .filter((startup: any) => startup.slug) // Only include startups with slugs
-    .map((startup: any) => ({
+    .filter((startup) => startup.slug)
+    .map((startup) => ({
       url: `${baseUrl}/startups/${startup.slug}`,
-      lastModified: startup.updated_at ? new Date(startup.updated_at) : new Date(startup.created_at || Date.now()),
+      lastModified: startupLastModified(startup),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     }))
 
   return [...staticPages, ...jobPages, ...startupPages]
 }
-
