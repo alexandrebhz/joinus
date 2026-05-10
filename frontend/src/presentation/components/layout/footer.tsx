@@ -66,8 +66,19 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-secondary-200 text-center text-sm text-secondary-600">
+        <div className="mt-8 pt-8 border-t border-secondary-200 text-center text-sm text-secondary-600 space-y-2">
           <p>&copy; {new Date().getFullYear()} JoinUs. All rights reserved.</p>
+          <p>
+            Developed by{' '}
+            <a
+              href="https://zaptcode.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-600 hover:text-primary-700 transition-colors"
+            >
+              ZaptCode
+            </a>
+          </p>
         </div>
       </div>
     </footer>
