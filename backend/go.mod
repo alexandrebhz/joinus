@@ -16,7 +16,7 @@ require (
 	github.com/resend/resend-go/v3 v3.1.0
 	golang.org/x/crypto v0.48.0
 	gorm.io/driver/postgres v1.6.0
-	gorm.io/gorm v1.31.1
+	gorm.io/gorm v1.31.2
 )
 
 require github.com/go-playground/validator/v10 v10.30.1
