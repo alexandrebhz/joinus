@@ -35,13 +35,15 @@ export function JobCard({ job }: JobCardProps) {
                 {job.title}
               </h3>
             </Link>
-            {job.startupName && (
-              <Link href={`/startups/${job.startupSlug || job.startupId}`}>
+            {job.startupName && job.startupSlug ? (
+              <Link href={`/startups/${job.startupSlug}`}>
                 <p className="text-sm text-primary-600 hover:text-primary-700 font-medium">
                   {job.startupName}
                 </p>
               </Link>
-            )}
+            ) : job.startupName ? (
+              <p className="text-sm text-secondary-700 font-medium">{job.startupName}</p>
+            ) : null}
           </div>
         </div>
 

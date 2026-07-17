@@ -1,4 +1,6 @@
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Header } from '@/presentation/components/layout/header'
 import { Footer } from '@/presentation/components/layout/footer'
 import { StartupCard } from '@/presentation/components/startup/startup-card'
@@ -6,6 +8,14 @@ import { StartupFilters } from '@/presentation/components/startup/startup-filter
 import { Pagination } from '@/presentation/components/ui/pagination'
 import { apiClient } from '@/infrastructure/api/api-client'
 import { StartupStatus } from '@/domain/entities/startup.entity'
+import {
+  buildPageMetadata,
+  listingCanonicalPath,
+  listingPageNumber,
+  shouldIndexListing,
+} from '@/lib/seo'
+
+export const revalidate = 60
 
 interface StartupsPageProps {
   searchParams: Promise<{
@@ -18,11 +28,27 @@ interface StartupsPageProps {
   }>
 }
 
-async function getStartups(filters: any) {
+export async function generateMetadata({ searchParams }: StartupsPageProps): Promise<Metadata> {
+  const params = await searchParams
+  const page = listingPageNumber(params)
+  const index = shouldIndexListing(params)
+  const title = page > 1 ? `Startups Hiring – Page ${page}` : 'Startups Hiring on JoinUs'
+
+  return buildPageMetadata({
+    title,
+    description:
+      'Explore innovative startups hiring on JoinUs. Browse companies by industry, size, and location.',
+    canonicalPath: listingCanonicalPath('/startups', params),
+    index,
+  })
+}
+
+async function getStartups(filters: Record<string, string | undefined>) {
   try {
     const response = await apiClient.listStartups({
       ...filters,
-      page: filters.page ? parseInt(filters.page) : 1,
+      status: (filters.status as StartupStatus) || 'active',
+      page: filters.page ? parseInt(filters.page, 10) : 1,
       page_size: 12,
     })
     return {
@@ -37,6 +63,12 @@ async function getStartups(filters: any) {
   }
 }
 
+const HUB_LINKS = [
+  { href: '/jobs', label: 'All jobs' },
+  { href: '/jobs?location_type=remote', label: 'Remote jobs' },
+  { href: '/about', label: 'About JoinUs' },
+]
+
 export default async function StartupsPage({ searchParams }: StartupsPageProps) {
   const params = await searchParams
   const { startups, meta } = await getStartups(params)
@@ -49,29 +81,37 @@ export default async function StartupsPage({ searchParams }: StartupsPageProps) 
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-secondary-900 mb-2">Startups</h1>
             <p className="text-secondary-600">Explore innovative companies</p>
+            <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+              {HUB_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-primary-600 hover:text-primary-700">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Filters and Results Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters Sidebar */}
             <div className="lg:col-span-1">
-              <Suspense fallback={
-                <div className="border border-secondary-200 rounded-lg p-6 bg-white">
-                  <div className="animate-pulse">
-                    <div className="h-6 bg-secondary-200 rounded w-1/3 mb-4"></div>
-                    <div className="space-y-4">
-                      <div className="h-10 bg-secondary-100 rounded"></div>
-                      <div className="h-10 bg-secondary-100 rounded"></div>
-                      <div className="h-10 bg-secondary-100 rounded"></div>
+              <Suspense
+                fallback={
+                  <div className="border border-secondary-200 rounded-lg p-6 bg-white">
+                    <div className="animate-pulse">
+                      <div className="h-6 bg-secondary-200 rounded w-1/3 mb-4"></div>
+                      <div className="space-y-4">
+                        <div className="h-10 bg-secondary-100 rounded"></div>
+                        <div className="h-10 bg-secondary-100 rounded"></div>
+                        <div className="h-10 bg-secondary-100 rounded"></div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              }>
+                }
+              >
                 <StartupFilters />
               </Suspense>
             </div>
 
-            {/* Startups Grid */}
             <div className="lg:col-span-3">
               {startups.length > 0 ? (
                 <>
@@ -83,7 +123,6 @@ export default async function StartupsPage({ searchParams }: StartupsPageProps) 
                     </div>
                   </div>
 
-                  {/* Pagination */}
                   {meta && <Pagination meta={meta} basePath="/startups" />}
                 </>
               ) : (
@@ -102,4 +141,3 @@ export default async function StartupsPage({ searchParams }: StartupsPageProps) 
     </div>
   )
 }
-
