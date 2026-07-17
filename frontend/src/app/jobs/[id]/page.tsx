@@ -4,10 +4,14 @@ import Link from 'next/link'
 import { Header } from '@/presentation/components/layout/header'
 import { Footer } from '@/presentation/components/layout/footer'
 import { apiClient } from '@/infrastructure/api/api-client'
+import { JobCard } from '@/presentation/components/job/job-card'
 import { Button } from '@/presentation/components/ui/button'
 import { Card, CardContent } from '@/presentation/components/ui/card'
 import { MapPin, Briefcase, DollarSign, Calendar, ExternalLink, Mail } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { buildPageMetadata, truncateTitle } from '@/lib/seo'
+
+export const revalidate = 60
 
 interface JobDetailPageProps {
   params: Promise<{
@@ -19,26 +23,73 @@ async function getJob(id: string) {
   try {
     const response = await apiClient.getJob(id)
     return response.data
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching job:', error)
     return null
+  }
+}
+
+async function getRelatedJobs(job: {
+  id: string
+  startupId: string
+  jobType?: string
+  locationType?: string
+}) {
+  try {
+    const [sameStartup, similar] = await Promise.all([
+      apiClient.listJobs({
+        startup_id: job.startupId,
+        status: 'active',
+        page: 1,
+        page_size: 6,
+      }),
+      apiClient.listJobs({
+        job_type: job.jobType as any,
+        location_type: job.locationType as any,
+        status: 'active',
+        page: 1,
+        page_size: 6,
+      }),
+    ])
+
+    const seen = new Set<string>([job.id])
+    const related = []
+
+    for (const candidate of [...(sameStartup.data || []), ...(similar.data || [])]) {
+      if (seen.has(candidate.id)) continue
+      seen.add(candidate.id)
+      related.push(candidate)
+      if (related.length >= 3) break
+    }
+
+    return related
+  } catch {
+    return []
   }
 }
 
 export async function generateMetadata({ params }: JobDetailPageProps): Promise<Metadata> {
   const { id } = await params
   const job = await getJob(id)
-  
+
   if (!job) {
-    return {
+    return buildPageMetadata({
       title: 'Job Not Found',
-    }
+      canonicalPath: `/jobs/${id}`,
+      index: false,
+    })
   }
 
-  return {
-    title: `${job.title} at ${job.startupName || 'Startup'} | JoinUs`,
-    description: job.description?.substring(0, 160) || `Job opening at ${job.startupName || 'Startup'}`,
-  }
+  const company = job.startupName || 'Startup'
+  const rawTitle = `${job.title} at ${company}`
+  const title = truncateTitle(rawTitle, 60)
+
+  return buildPageMetadata({
+    title,
+    description:
+      job.description?.substring(0, 160) || `Job opening at ${company} on JoinUs`,
+    canonicalPath: `/jobs/${job.id}`,
+  })
 }
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
@@ -48,6 +99,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   if (!job) {
     notFound()
   }
+
+  const relatedJobs = await getRelatedJobs(job)
+  const startupHref = job.startupSlug ? `/startups/${job.startupSlug}` : null
 
   const formatSalary = () => {
     if (!job.salaryMin && !job.salaryMax) return null
@@ -67,14 +121,39 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       <Header />
       <main className="flex-1 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <nav aria-label="Breadcrumb" className="mb-6 text-sm text-secondary-600">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link href="/jobs" className="text-primary-600 hover:text-primary-700">
+                  Jobs
+                </Link>
+              </li>
+              <li aria-hidden="true">/</li>
+              {startupHref && job.startupName ? (
+                <>
+                  <li>
+                    <Link href={startupHref} className="text-primary-600 hover:text-primary-700">
+                      {job.startupName}
+                    </Link>
+                  </li>
+                  <li aria-hidden="true">/</li>
+                </>
+              ) : null}
+              <li className="text-secondary-900 font-medium line-clamp-1">{job.title}</li>
+            </ol>
+          </nav>
+
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-secondary-900 mb-2">{job.title}</h1>
-            {job.startupName && (
-              <Link href={`/startups/${job.startupSlug || job.startupId}`}>
+            {job.startupName && startupHref && (
+              <Link href={startupHref}>
                 <p className="text-lg text-primary-600 hover:text-primary-700 font-medium transition-colors">
                   {job.startupName}
                 </p>
               </Link>
+            )}
+            {job.startupName && !startupHref && (
+              <p className="text-lg text-secondary-700 font-medium">{job.startupName}</p>
             )}
           </div>
 
@@ -119,9 +198,12 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     )}
                     <div className="flex items-center text-secondary-700">
                       <Calendar className="h-5 w-5 mr-3 text-secondary-400" />
-                      <span>Posted {job.createdAt && !isNaN(new Date(job.createdAt).getTime())
-                        ? formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })
-                        : 'recently'}</span>
+                      <span>
+                        Posted{' '}
+                        {job.createdAt && !isNaN(new Date(job.createdAt).getTime())
+                          ? formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })
+                          : 'recently'}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -149,15 +231,39 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                         Application method not specified
                       </Button>
                     )}
+                    <Link
+                      href="/jobs"
+                      className="block text-center text-sm text-primary-600 hover:text-primary-700"
+                    >
+                      Browse all jobs
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </div>
+
+          {relatedJobs.length > 0 && (
+            <section className="mt-12">
+              <div className="mb-6 flex items-end justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-secondary-900">Related jobs</h2>
+                  <p className="text-secondary-600 text-sm">More roles you might like</p>
+                </div>
+                <Link href="/jobs" className="text-sm text-primary-600 hover:text-primary-700">
+                  View all
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {relatedJobs.map((related) => (
+                  <JobCard key={related.id} job={related} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </main>
       <Footer />
     </div>
   )
 }
-

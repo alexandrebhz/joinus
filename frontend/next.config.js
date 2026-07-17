@@ -5,6 +5,18 @@ const nextConfig = {
   
   // Memory optimizations
   compress: true,
+
+  // Prefer a single host for SEO (avoid www/non-www duplicates).
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.joinus.ie' }],
+        destination: 'https://joinus.ie/:path*',
+        permanent: true,
+      },
+    ]
+  },
   
   // Optimize production builds
   productionBrowserSourceMaps: false,

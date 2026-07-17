@@ -1,22 +1,18 @@
 import { MetadataRoute } from 'next'
+import { getSiteUrl } from '@/lib/seo'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://joinus.ie'
-  
+  const baseUrl = getSiteUrl()
+
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: [
-          '/api/',
-          '/dashboard/',
-          '/login',
-          '/register',
-        ],
+        disallow: ['/api/', '/dashboard/', '/login', '/register'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl.replace(/^https?:\/\//, ''),
   }
 }
-

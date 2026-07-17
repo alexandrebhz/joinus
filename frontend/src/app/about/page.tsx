@@ -5,14 +5,14 @@ import { Footer } from '@/presentation/components/layout/footer'
 import { Button } from '@/presentation/components/ui/button'
 import { Briefcase, Building2, TrendingUp, Users, Zap, Target, ArrowRight, Heart, Shield, Rocket } from 'lucide-react'
 
-export const metadata: Metadata = {
-  title: 'About Us | JoinUs Job Board',
-  description: 'Learn about JoinUs - the premier job board connecting talented professionals with innovative startups. Discover our mission, values, and commitment to helping you find your dream job.',
-  openGraph: {
-    title: 'About Us | JoinUs Job Board',
-    description: 'Learn about JoinUs - connecting talented professionals with innovative startups.',
-  },
-}
+import { buildPageMetadata } from '@/lib/seo'
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'About JoinUs',
+  description:
+    'Learn about JoinUs — the job board connecting talented professionals with innovative startups.',
+  canonicalPath: '/about',
+})
 
 export default function AboutPage() {
   return (
