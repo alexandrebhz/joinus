@@ -20,6 +20,9 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
         ...(job.createdAt && !isNaN(new Date(job.createdAt).getTime()) && {
           datePosted: job.createdAt,
         }),
+        ...(job.expiresAt && !isNaN(new Date(job.expiresAt).getTime()) && {
+          validThrough: job.expiresAt,
+        }),
         employmentType: job.jobType?.replace('_', ' ') || 'FULL_TIME',
         hiringOrganization: {
           '@type': 'Organization',
@@ -29,7 +32,10 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
           '@type': 'Place',
           address: {
             '@type': 'PostalAddress',
+            streetAddress: '',
             addressLocality: job.city || '',
+            addressRegion: '',
+            postalCode: '',
             addressCountry: job.country,
           },
         },
