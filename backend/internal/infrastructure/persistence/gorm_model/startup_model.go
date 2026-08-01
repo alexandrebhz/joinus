@@ -23,6 +23,7 @@ type Startup struct {
 	AllowPublicJoin bool       `gorm:"default:false"`
 	JoinCode        *string    `gorm:"type:varchar(255)"`
 	Status          string     `gorm:"type:varchar(50);not null;default:'active'"`
+	TeamID               *string    `gorm:"type:uuid;index"`
 	Plan                 string     `gorm:"type:varchar(20);not null;default:'free'"`
 	PlanExpiresAt        *time.Time `gorm:"type:timestamp"`
 	StripeCustomerID     *string    `gorm:"type:varchar(255);index"`

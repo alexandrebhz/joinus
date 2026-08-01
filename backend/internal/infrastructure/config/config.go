@@ -13,14 +13,21 @@ type Config struct {
 	Port        string
 	GinMode     string
 
-	Database DatabaseConfig
-	JWT      JWTConfig
-	Storage  StorageConfig
-	Email    EmailConfig
-	CORS     CORSConfig
+	Database  DatabaseConfig
+	JWT       JWTConfig
+	Storage   StorageConfig
+	Email     EmailConfig
+	CORS      CORSConfig
 	RateLimit RateLimitConfig
-	AppURL   string
-	Stripe   StripeConfig
+	AppURL    string
+	Stripe    StripeConfig
+	OAuth     OAuthConfig
+}
+
+type OAuthConfig struct {
+	GoogleClientID     string
+	GoogleClientSecret string
+	RedirectBaseURL    string
 }
 
 type DatabaseConfig struct {
@@ -149,6 +156,12 @@ func Load() (*Config, error) {
 			WebhookSecret:   getEnv("STRIPE_WEBHOOK_SECRET", ""),
 			PriceJobBoost:   getEnv("STRIPE_PRICE_JOB_BOOST", ""),
 			PriceStartupPro: getEnv("STRIPE_PRICE_STARTUP_PRO", ""),
+		},
+
+		OAuth: OAuthConfig{
+			GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
+			GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
+			RedirectBaseURL:    getEnv("OAUTH_REDIRECT_BASE_URL", "http://localhost:8080/api/v1/auth/oauth"),
 		},
 	}
 

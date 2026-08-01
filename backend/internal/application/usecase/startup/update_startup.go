@@ -7,32 +7,41 @@ import (
 	"github.com/startup-job-board/backend/internal/application/dto"
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
+	"github.com/startup-job-board/backend/internal/domain/service"
 	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/logger"
 )
 
 type UpdateStartupUseCase struct {
 	startupRepo repository.StartupRepository
+	authService *service.AuthorizationService
 	logger      logger.Logger
 }
 
 func NewUpdateStartupUseCase(
 	startupRepo repository.StartupRepository,
+	authService *service.AuthorizationService,
 	logger logger.Logger,
 ) *UpdateStartupUseCase {
 	return &UpdateStartupUseCase{
 		startupRepo: startupRepo,
+		authService: authService,
 		logger:      logger,
 	}
 }
 
-func (uc *UpdateStartupUseCase) Execute(ctx context.Context, input dto.UpdateStartupInput) (*dto.StartupOutput, error) {
+func (uc *UpdateStartupUseCase) Execute(ctx context.Context, input dto.UpdateStartupInput, userID string) (*dto.StartupOutput, error) {
 	startup, err := uc.startupRepo.FindByID(ctx, input.ID)
 	if err != nil {
 		return nil, errors.NewNotFoundError("startup")
 	}
 
-	// Update fields
+	// Security: deny with NOT_FOUND to avoid leaking existence of private startups.
+	ok, err := uc.authService.CanAccessStartup(ctx, userID, input.ID, entity.ScopeStartupManage)
+	if err != nil || !ok {
+		return nil, errors.NewNotFoundError("startup")
+	}
+
 	if input.Name != nil {
 		startup.Name = *input.Name
 	}
@@ -96,6 +105,3 @@ func (uc *UpdateStartupUseCase) toOutput(startup *entity.Startup) *dto.StartupOu
 
 	return output
 }
-
-
-

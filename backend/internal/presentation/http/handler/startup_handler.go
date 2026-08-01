@@ -91,8 +91,13 @@ func (h *StartupHandler) Update(c *gin.Context) {
 		return
 	}
 
-	result, err := h.updateUseCase.Execute(c.Request.Context(), input)
+	userID := middleware.GetUserID(c)
+	result, err := h.updateUseCase.Execute(c.Request.Context(), input, userID)
 	if err != nil {
+		if appErr, ok := err.(*errors.AppError); ok && appErr.Code == "NOT_FOUND" {
+			response.Error(c, http.StatusNotFound, err)
+			return
+		}
 		response.Error(c, http.StatusBadRequest, err)
 		return
 	}

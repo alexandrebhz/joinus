@@ -122,6 +122,18 @@ func (r *StartupRepositoryImpl) List(ctx context.Context, filter repository.Star
 	return startups, total, nil
 }
 
+func (r *StartupRepositoryImpl) FindByTeamID(ctx context.Context, teamID string) ([]*entity.Startup, error) {
+	var models []gorm_model.Startup
+	if err := r.db.WithContext(ctx).Where("team_id = ?", teamID).Find(&models).Error; err != nil {
+		return nil, err
+	}
+	startups := make([]*entity.Startup, len(models))
+	for i, m := range models {
+		startups[i] = r.toDomain(&m)
+	}
+	return startups, nil
+}
+
 func (r *StartupRepositoryImpl) toModel(startup *entity.Startup) *gorm_model.Startup {
 	return &gorm_model.Startup{
 		ID:              startup.ID,
@@ -141,6 +153,7 @@ func (r *StartupRepositoryImpl) toModel(startup *entity.Startup) *gorm_model.Sta
 		AllowPublicJoin: startup.AllowPublicJoin,
 		JoinCode:        startup.JoinCode,
 		Status:          string(startup.Status),
+		TeamID:               startup.TeamID,
 		Plan:                 startup.Plan,
 		PlanExpiresAt:        startup.PlanExpiresAt,
 		StripeCustomerID:     startup.StripeCustomerID,
@@ -175,6 +188,7 @@ func (r *StartupRepositoryImpl) toDomain(model *gorm_model.Startup) *entity.Star
 		AllowPublicJoin: model.AllowPublicJoin,
 		JoinCode:        model.JoinCode,
 		Status:          entity.StartupStatus(model.Status),
+		TeamID:               model.TeamID,
 		Plan:                 plan,
 		PlanExpiresAt:        model.PlanExpiresAt,
 		StripeCustomerID:     model.StripeCustomerID,

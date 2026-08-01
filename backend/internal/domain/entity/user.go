@@ -17,11 +17,23 @@ type User struct {
 type UserRole string
 
 const (
-	UserRoleAdmin        UserRole = "admin"
+	// PlatformAdmin has cross-tenant privilege and is never a team member for that power.
+	UserRolePlatformAdmin UserRole = "platform_admin"
+	// Legacy alias kept for existing JWTs / DB rows; treated as platform admin.
+	UserRoleAdmin UserRole = "admin"
+	// Regular authenticated user (job seeker and/or team member).
+	UserRoleUser UserRole = "user"
+	// Legacy roles — still accepted in JWT; map via helpers below.
 	UserRoleStartupOwner UserRole = "startup_owner"
 	UserRoleCandidate    UserRole = "candidate"
-	UserRoleMember       UserRole = "member" // Deprecated: use candidate instead
+	UserRoleMember       UserRole = "member" // Deprecated
 )
+
+// IsPlatformAdmin reports whether the role has platform-wide privileges
+// without requiring team membership.
+func (r UserRole) IsPlatformAdmin() bool {
+	return r == UserRolePlatformAdmin || r == UserRoleAdmin
+}
 
 type UserStatus string
 

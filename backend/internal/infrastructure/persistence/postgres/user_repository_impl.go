@@ -42,6 +42,33 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 	return r.toDomain(&model), nil
 }
 
+func (r *UserRepositoryImpl) List(ctx context.Context, page, pageSize int, search string) ([]*entity.User, int64, error) {
+	q := r.db.WithContext(ctx).Model(&gorm_model.User{})
+	if search != "" {
+		like := "%" + search + "%"
+		q = q.Where("email ILIKE ? OR name ILIKE ?", like, like)
+	}
+	var total int64
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	var models []gorm_model.User
+	if err := q.Order("created_at DESC").Offset((page - 1) * pageSize).Limit(pageSize).Find(&models).Error; err != nil {
+		return nil, 0, err
+	}
+	out := make([]*entity.User, len(models))
+	for i := range models {
+		out[i] = r.toDomain(&models[i])
+	}
+	return out, total, nil
+}
+
 func (r *UserRepositoryImpl) toModel(user *entity.User) *gorm_model.User {
 	return &gorm_model.User{
 		ID:        user.ID,
