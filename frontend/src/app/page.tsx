@@ -8,19 +8,20 @@ import { JobCard } from '@/presentation/components/job/job-card'
 import { StartupCard } from '@/presentation/components/startup/startup-card'
 import { JobPostingStructuredData, OrganizationStructuredData, WebSiteStructuredData } from '@/presentation/components/seo/structured-data'
 import { ArrowRight, Search, Briefcase, Building2, TrendingUp, Users, Zap, Target } from 'lucide-react'
+import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  title: 'Find Your Dream Job at Innovative Startups | JoinUs Job Board',
-  description: 'Discover 1000+ tech jobs at fast-growing startups. Browse remote, hybrid, and onsite software engineering, product, design, and marketing roles. Join thousands of professionals finding their next career opportunity.',
-  openGraph: {
-    title: 'Find Your Dream Job at Innovative Startups | JoinUs Job Board',
-    description: 'Discover 1000+ tech jobs at fast-growing startups. Browse remote, hybrid, and onsite software engineering, product, design, and marketing roles.',
-  },
-}
+export const revalidate = 60
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'JoinUs – Startup Jobs & Careers',
+  description:
+    'Discover tech jobs at fast-growing startups. Browse remote, hybrid, and onsite roles for engineers, product, design, and more.',
+  canonicalPath: '/',
+})
 
 async function getFeaturedJobs() {
   try {
-    const response = await apiClient.listJobs({ page: 1, page_size: 6 })
+    const response = await apiClient.listJobs({ page: 1, page_size: 6, status: 'active' })
     return response.data || []
   } catch {
     return []
@@ -29,7 +30,7 @@ async function getFeaturedJobs() {
 
 async function getFeaturedStartups() {
   try {
-    const response = await apiClient.listStartups({ page: 1, page_size: 6 })
+    const response = await apiClient.listStartups({ page: 1, page_size: 6, status: 'active' })
     return response.data || []
   } catch {
     return []

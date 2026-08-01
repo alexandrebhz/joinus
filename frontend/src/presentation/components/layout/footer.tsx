@@ -1,5 +1,25 @@
 import Link from 'next/link'
 
+const jobSeekerLinks = [
+  { href: '/jobs', label: 'Browse Jobs' },
+  { href: '/jobs?location_type=remote', label: 'Remote Jobs' },
+  { href: '/jobs?location_type=hybrid', label: 'Hybrid Jobs' },
+  { href: '/jobs?job_type=full_time', label: 'Full-time Jobs' },
+  { href: '/startups', label: 'Explore Startups' },
+]
+
+const startupLinks = [
+  { href: '/register', label: 'Post a Job' },
+  { href: '/startups', label: 'Browse Startups' },
+  { href: '/about', label: 'Why JoinUs' },
+]
+
+const companyLinks = [
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/jobs', label: 'Open roles' },
+]
+
 export function Footer() {
   return (
     <footer className="border-t border-secondary-200 bg-secondary-50">
@@ -20,48 +40,39 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-secondary-900 mb-4">For Job Seekers</h3>
             <ul className="space-y-2 text-sm text-secondary-600">
-              <li>
-                <Link href="/jobs" className="hover:text-primary-600 transition-colors">
-                  Browse Jobs
-                </Link>
-              </li>
-              <li>
-                <Link href="/startups" className="hover:text-primary-600 transition-colors">
-                  Explore Startups
-                </Link>
-              </li>
+              {jobSeekerLinks.map((link) => (
+                <li key={link.href + link.label}>
+                  <Link href={link.href} className="hover:text-primary-600 transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold text-secondary-900 mb-4">For Startups</h3>
             <ul className="space-y-2 text-sm text-secondary-600">
-              <li>
-                <Link href="/register" className="hover:text-primary-600 transition-colors">
-                  Post a Job
-                </Link>
-              </li>
-              <li>
-                <Link href="/startups" className="hover:text-primary-600 transition-colors">
-                  Create Profile
-                </Link>
-              </li>
+              {startupLinks.map((link) => (
+                <li key={link.href + link.label}>
+                  <Link href={link.href} className="hover:text-primary-600 transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold text-secondary-900 mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-secondary-600">
-              <li>
-                <Link href="/about" className="hover:text-primary-600 transition-colors">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-primary-600 transition-colors">
-                  Contact
-                </Link>
-              </li>
+              {companyLinks.map((link) => (
+                <li key={link.href + link.label}>
+                  <Link href={link.href} className="hover:text-primary-600 transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -84,4 +95,3 @@ export function Footer() {
     </footer>
   )
 }
-

@@ -1,4 +1,5 @@
 import { Job } from '@/domain/entities/job.entity'
+import { absoluteUrl, getSiteUrl } from '@/lib/seo'
 
 export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
   const structuredData = {
@@ -19,6 +20,9 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
         ...(job.createdAt && !isNaN(new Date(job.createdAt).getTime()) && {
           datePosted: job.createdAt,
         }),
+        ...(job.expiresAt && !isNaN(new Date(job.expiresAt).getTime()) && {
+          validThrough: job.expiresAt,
+        }),
         employmentType: job.jobType?.replace('_', ' ') || 'FULL_TIME',
         hiringOrganization: {
           '@type': 'Organization',
@@ -28,7 +32,10 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
           '@type': 'Place',
           address: {
             '@type': 'PostalAddress',
+            streetAddress: '',
             addressLocality: job.city || '',
+            addressRegion: '',
+            postalCode: '',
             addressCountry: job.country,
           },
         },
@@ -60,12 +67,13 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
 }
 
 export function OrganizationStructuredData() {
+  const siteUrl = getSiteUrl()
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'JoinUs',
-    url: 'https://joinus.ie',
-    logo: 'https://joinus.ie/logo.png',
+    url: siteUrl,
+    logo: absoluteUrl('/logo.png'),
     description: 'Startup job board connecting talented professionals with innovative startups',
     sameAs: [
       'https://twitter.com/joinus',
@@ -87,16 +95,17 @@ export function OrganizationStructuredData() {
 }
 
 export function WebSiteStructuredData() {
+  const siteUrl = getSiteUrl()
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'JoinUs',
-    url: 'https://joinus.ie',
+    url: siteUrl,
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://joinus.ie/jobs?search={search_term_string}',
+        urlTemplate: `${siteUrl}/jobs?search={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },

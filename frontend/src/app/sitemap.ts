@@ -2,26 +2,34 @@ import { MetadataRoute } from 'next'
 import { apiClient } from '@/infrastructure/api/api-client'
 import type { PaginationMeta } from '@/domain/value-objects/api-response.vo'
 import type { Startup } from '@/domain/entities/startup.entity'
+import { getSiteUrl } from '@/lib/seo'
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://joinus.ie'
+const baseUrl = getSiteUrl()
 
 /** Avoid runaway loops if the API omits pagination meta. */
 const MAX_SITEMAP_PAGES = 500
 const SITEMAP_PAGE_SIZE = 100
+/** Listing page size used by /jobs and /startups UI (for pagination URLs). */
+const LISTING_PAGE_SIZE = 12
 
 async function fetchAllPages<T>(
   load: (page: number) => Promise<{ data?: T[]; meta?: PaginationMeta }>,
-): Promise<T[]> {
+): Promise<{ items: T[]; totalCount: number }> {
   const out: T[] = []
+  let totalCount = 0
+
   for (let page = 1; page <= MAX_SITEMAP_PAGES; page++) {
     const { data, meta } = await load(page)
     const batch = data ?? []
     out.push(...batch)
+    if (meta?.totalCount) totalCount = meta.totalCount
     if (batch.length === 0) break
     if (meta && page >= meta.totalPages) break
     if (batch.length < SITEMAP_PAGE_SIZE) break
   }
-  return out
+
+  if (!totalCount) totalCount = out.length
+  return { items: out, totalCount }
 }
 
 async function fetchJobsForSitemap() {
@@ -30,11 +38,12 @@ async function fetchJobsForSitemap() {
       apiClient.listJobs({
         page,
         page_size: SITEMAP_PAGE_SIZE,
+        status: 'active',
       }),
     )
   } catch (error) {
     console.error('Error fetching jobs for sitemap:', error)
-    return []
+    return { items: [], totalCount: 0 }
   }
 }
 
@@ -44,11 +53,12 @@ async function fetchStartupsForSitemap() {
       apiClient.listStartups({
         page,
         page_size: SITEMAP_PAGE_SIZE,
+        status: 'active',
       }),
     )
   } catch (error) {
     console.error('Error fetching startups for sitemap:', error)
-    return []
+    return { items: [], totalCount: 0 }
   }
 }
 
@@ -59,11 +69,31 @@ function startupLastModified(startup: Startup): Date {
   return new Date(iso || Date.now())
 }
 
+function listingPageEntries(
+  path: '/jobs' | '/startups',
+  totalCount: number,
+): MetadataRoute.Sitemap {
+  const totalPages = Math.max(1, Math.ceil(totalCount / LISTING_PAGE_SIZE))
+  const entries: MetadataRoute.Sitemap = []
+
+  // Page 1 is already covered by the static /jobs or /startups entry.
+  for (let page = 2; page <= totalPages && page <= 50; page++) {
+    entries.push({
+      url: `${baseUrl}${path}?page=${page}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.6,
+    })
+  }
+
+  return entries
+}
+
 /** Build sitemap at request time so new startups/jobs appear without a rebuild. */
 export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -97,19 +127,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  const [jobs, startups] = await Promise.all([
+  const [jobsResult, startupsResult] = await Promise.all([
     fetchJobsForSitemap(),
     fetchStartupsForSitemap(),
   ])
 
-  const jobPages: MetadataRoute.Sitemap = jobs.map((job) => ({
+  const jobPages: MetadataRoute.Sitemap = jobsResult.items.map((job) => ({
     url: `${baseUrl}/jobs/${job.id}`,
-    lastModified: job.updatedAt ? new Date(job.updatedAt) : new Date(job.createdAt || Date.now()),
+    lastModified: job.updatedAt
+      ? new Date(job.updatedAt)
+      : new Date(job.createdAt || Date.now()),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }))
 
-  const startupPages: MetadataRoute.Sitemap = startups
+  const startupPages: MetadataRoute.Sitemap = startupsResult.items
     .filter((startup) => startup.slug)
     .map((startup) => ({
       url: `${baseUrl}/startups/${startup.slug}`,
@@ -118,5 +150,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }))
 
-  return [...staticPages, ...jobPages, ...startupPages]
+  const jobListingPages = listingPageEntries('/jobs', jobsResult.totalCount)
+  const startupListingPages = listingPageEntries('/startups', startupsResult.totalCount)
+
+  return [
+    ...staticPages,
+    ...jobListingPages,
+    ...startupListingPages,
+    ...jobPages,
+    ...startupPages,
+  ]
 }

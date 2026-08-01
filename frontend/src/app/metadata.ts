@@ -1,20 +1,24 @@
 import type { Metadata } from 'next'
+import { absoluteUrl, getSiteUrl, truncateTitle } from '@/lib/seo'
 
 export const siteConfig = {
   name: 'JoinUs',
-  description: 'Discover your next career opportunity at innovative startups. Browse remote, hybrid, and onsite tech jobs from fast-growing companies. Join thousands of professionals finding their dream roles.',
-  url: 'https://joinus.ie',
-  ogImage: '/og-image.jpg', // You'll need to create this
+  description:
+    'Discover your next career opportunity at innovative startups. Browse remote, hybrid, and onsite tech jobs from fast-growing companies.',
+  url: getSiteUrl(),
+  ogImage: '/og-image.jpg',
   links: {
     twitter: 'https://twitter.com/joinus',
     github: 'https://github.com/joinus',
   },
 }
 
+const defaultTitle = truncateTitle('JoinUs – Startup Job Board | Tech Jobs')
+
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: 'JoinUs - Startup Job Board | Find Tech Jobs at Innovative Startups',
+    default: defaultTitle,
     template: '%s | JoinUs',
   },
   description: siteConfig.description,
@@ -36,17 +40,16 @@ export const defaultMetadata: Metadata = {
     'marketing jobs',
     'sales jobs',
   ],
-  authors: [
-    {
-      name: 'JoinUs',
-    },
-  ],
+  authors: [{ name: 'JoinUs' }],
   creator: 'JoinUs',
+  alternates: {
+    canonical: absoluteUrl('/'),
+  },
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: 'en_IE',
     url: siteConfig.url,
-    title: 'JoinUs - Startup Job Board | Find Tech Jobs at Innovative Startups',
+    title: defaultTitle,
     description: siteConfig.description,
     siteName: 'JoinUs',
     images: [
@@ -60,7 +63,7 @@ export const defaultMetadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'JoinUs - Startup Job Board | Find Tech Jobs at Innovative Startups',
+    title: defaultTitle,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
     creator: '@joinus',
@@ -73,8 +76,4 @@ export const defaultMetadata: Metadata = {
       follow: true,
     },
   },
-  verification: {
-    google: 'your-google-verification-code', // Add your Google Search Console verification code
-  },
 }
-

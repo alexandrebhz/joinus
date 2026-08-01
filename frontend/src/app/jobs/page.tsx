@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Header } from '@/presentation/components/layout/header'
 import { Footer } from '@/presentation/components/layout/footer'
 import { JobCard } from '@/presentation/components/job/job-card'
@@ -6,6 +8,14 @@ import { JobFiltersMobile } from '@/presentation/components/job/job-filters-mobi
 import { Pagination } from '@/presentation/components/ui/pagination'
 import { apiClient } from '@/infrastructure/api/api-client'
 import { JobSortControls } from '@/presentation/components/job/job-sort-controls'
+import {
+  buildPageMetadata,
+  listingCanonicalPath,
+  listingPageNumber,
+  shouldIndexListing,
+} from '@/lib/seo'
+
+export const revalidate = 60
 
 interface JobsPageProps {
   searchParams: Promise<{
@@ -23,25 +33,42 @@ interface JobsPageProps {
   }>
 }
 
-async function getJobs(filters: any) {
+export async function generateMetadata({ searchParams }: JobsPageProps): Promise<Metadata> {
+  const params = await searchParams
+  const page = listingPageNumber(params)
+  const index = shouldIndexListing(params)
+  const title =
+    page > 1 ? `Startup Jobs – Page ${page}` : 'Startup Jobs – Remote, Hybrid & Onsite'
+
+  return buildPageMetadata({
+    title,
+    description:
+      'Browse tech and startup jobs across remote, hybrid, and onsite roles. Filter by type, location, and salary on JoinUs.',
+    canonicalPath: listingCanonicalPath('/jobs', params),
+    index,
+  })
+}
+
+async function getJobs(filters: Record<string, string | undefined>) {
   try {
-    const params: any = {
-      page: filters.page ? parseInt(filters.page) : 1,
+    const params: Record<string, string | number> = {
+      page: filters.page ? parseInt(filters.page, 10) : 1,
       page_size: 12,
+      status: 'active',
     }
-    
+
     if (filters.search) params.search = filters.search
     if (filters.job_type) params.job_type = filters.job_type
     if (filters.location_type) params.location_type = filters.location_type
     if (filters.country) params.country = filters.country
     if (filters.city) params.city = filters.city
-    if (filters.salary_min) params.salary_min = parseInt(filters.salary_min)
-    if (filters.salary_max) params.salary_max = parseInt(filters.salary_max)
+    if (filters.salary_min) params.salary_min = parseInt(filters.salary_min, 10)
+    if (filters.salary_max) params.salary_max = parseInt(filters.salary_max, 10)
     if (filters.currency) params.currency = filters.currency
     if (filters.order_by) params.order_by = filters.order_by
     if (filters.order_dir) params.order_dir = filters.order_dir
-    
-    const response = await apiClient.listJobs(params)
+
+    const response = await apiClient.listJobs(params as any)
     return {
       jobs: response.data || [],
       meta: response.meta,
@@ -54,10 +81,19 @@ async function getJobs(filters: any) {
   }
 }
 
+const HUB_LINKS = [
+  { href: '/jobs?location_type=remote', label: 'Remote' },
+  { href: '/jobs?location_type=hybrid', label: 'Hybrid' },
+  { href: '/jobs?job_type=full_time', label: 'Full-time' },
+  { href: '/jobs?job_type=part_time', label: 'Part-time' },
+  { href: '/jobs?job_type=contract', label: 'Contract' },
+  { href: '/startups', label: 'Browse startups' },
+]
+
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const params = await searchParams
   const { jobs, meta } = await getJobs(params)
-  
+
   const activeFiltersCount = [
     params.search,
     params.job_type,
@@ -86,23 +122,26 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                 </span>
               )}
             </p>
+            <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+              {HUB_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-primary-600 hover:text-primary-700">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar */}
             <aside className="lg:w-80 flex-shrink-0">
-              {/* Mobile Filters Toggle */}
               <JobFiltersMobile />
-              
-              {/* Desktop Filters */}
               <div className="hidden md:block">
                 <JobFilters />
               </div>
             </aside>
 
-            {/* Jobs List */}
             <div className="flex-1">
-              {/* Sort Controls */}
               <div className="mb-6">
                 <JobSortControls />
               </div>
@@ -117,7 +156,6 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                     </div>
                   </div>
 
-                  {/* Pagination */}
                   {meta && <Pagination meta={meta} />}
                 </>
               ) : (
@@ -136,4 +174,3 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     </div>
   )
 }
-
