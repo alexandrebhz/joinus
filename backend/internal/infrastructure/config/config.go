@@ -1,12 +1,18 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
 )
+
+var weakJWTSecrets = []string{
+	"your-secret-key",
+	"your-secret-key-change-in-production",
+}
 
 type Config struct {
 	Environment string
@@ -22,7 +28,8 @@ type Config struct {
 	AppURL      string
 	Stripe      StripeConfig
 	OAuth       OAuthConfig
-	InternalKey string
+	InternalKey     string
+	TrustedProxies  []string
 }
 
 type OAuthConfig struct {
@@ -172,9 +179,33 @@ func Load() (*Config, error) {
 			GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 			RedirectBaseURL:    getEnv("OAUTH_REDIRECT_BASE_URL", "http://localhost:8080/api/v1/auth/oauth"),
 		},
+
+		TrustedProxies: parseStringSlice(getEnv("TRUSTED_PROXIES", "")),
+	}
+
+	if err := validateJWTSecret(config); err != nil {
+		return nil, err
 	}
 
 	return config, nil
+}
+
+func validateJWTSecret(cfg *Config) error {
+	isProd := cfg.Environment == "production" || cfg.Environment == "prod" || cfg.GinMode == "release"
+	if !isProd {
+		return nil
+	}
+
+	secret := cfg.JWT.Secret
+	if secret == "" || len(secret) < 32 {
+		return fmt.Errorf("JWT_SECRET must be at least 32 characters in production")
+	}
+	for _, weak := range weakJWTSecrets {
+		if secret == weak {
+			return fmt.Errorf("JWT_SECRET must not use a default value in production")
+		}
+	}
+	return nil
 }
 
 func getEnv(key, defaultValue string) string {

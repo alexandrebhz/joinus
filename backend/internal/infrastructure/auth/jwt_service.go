@@ -30,7 +30,8 @@ type Claims struct {
 }
 
 type RefreshClaims struct {
-	UserID string `json:"user_id"`
+	UserID       string `json:"user_id"`
+	TokenVersion int    `json:"token_version"`
 	jwt.RegisteredClaims
 }
 
@@ -48,9 +49,10 @@ func (s *JWTService) GenerateAccessToken(userID string, role string) (string, er
 	return token.SignedString([]byte(s.secret))
 }
 
-func (s *JWTService) GenerateRefreshToken(userID string) (string, error) {
+func (s *JWTService) GenerateRefreshToken(userID string, version int) (string, error) {
 	claims := &RefreshClaims{
-		UserID: userID,
+		UserID:       userID,
+		TokenVersion: version,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.refreshExpiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -80,7 +82,7 @@ func (s *JWTService) ValidateToken(tokenString string) (string, string, error) {
 	return "", "", errors.New("invalid token")
 }
 
-func (s *JWTService) ValidateRefreshToken(tokenString string) (string, error) {
+func (s *JWTService) ValidateRefreshToken(tokenString string) (string, int, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
@@ -89,14 +91,14 @@ func (s *JWTService) ValidateRefreshToken(tokenString string) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	if claims, ok := token.Claims.(*RefreshClaims); ok && token.Valid {
-		return claims.UserID, nil
+		return claims.UserID, claims.TokenVersion, nil
 	}
 
-	return "", errors.New("invalid refresh token")
+	return "", 0, errors.New("invalid refresh token")
 }
 
 

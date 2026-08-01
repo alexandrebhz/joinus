@@ -2,12 +2,12 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
 	"github.com/startup-job-board/backend/internal/infrastructure/persistence/gorm_model"
+	"github.com/startup-job-board/backend/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -51,8 +51,18 @@ func (r *StartupRepositoryImpl) FindBySlug(ctx context.Context, slug string) (*e
 
 func (r *StartupRepositoryImpl) FindByAPIToken(ctx context.Context, token string) (*entity.Startup, error) {
 	var model gorm_model.Startup
+	hashed := utils.HashToken(token)
+	err := r.db.WithContext(ctx).Where("api_token = ?", hashed).First(&model).Error
+	if err == nil {
+		return r.toDomain(&model), nil
+	}
+	// Upgrade path: legacy plaintext tokens are hashed on first successful use.
 	if err := r.db.WithContext(ctx).Where("api_token = ?", token).First(&model).Error; err != nil {
 		return nil, err
+	}
+	if !utils.LooksLikeTokenHash(model.APIToken) {
+		_ = r.db.WithContext(ctx).Model(&model).Update("api_token", hashed).Error
+		model.APIToken = hashed
 	}
 	return r.toDomain(&model), nil
 }
@@ -98,16 +108,8 @@ func (r *StartupRepositoryImpl) List(ctx context.Context, filter repository.Star
 		query = query.Offset(offset).Limit(filter.PageSize)
 	}
 
-	// Apply ordering
-	orderBy := "created_at"
-	if filter.OrderBy != "" {
-		orderBy = filter.OrderBy
-	}
-	orderDir := "DESC"
-	if filter.OrderDir != "" {
-		orderDir = strings.ToUpper(filter.OrderDir)
-	}
-	query = query.Order(fmt.Sprintf("%s %s", orderBy, orderDir))
+	orderBy, orderDir := utils.SanitizeOrder(filter.OrderBy, filter.OrderDir, utils.StartupOrderColumns, "created_at")
+	query = query.Order(orderBy + " " + orderDir)
 
 	var models []gorm_model.Startup
 	if err := query.Find(&models).Error; err != nil {

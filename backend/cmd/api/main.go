@@ -89,11 +89,12 @@ func main() {
 	registerUC := authusecase.NewRegisterUseCase(userRepo, jwtService, logger)
 	loginUC := authusecase.NewLoginUseCase(userRepo, jwtService, logger)
 	refreshTokenUC := authusecase.NewRefreshTokenUseCase(userRepo, jwtService, logger)
+	logoutUC := authusecase.NewLogoutUseCase(userRepo, logger)
 	getMeUC := authusecase.NewGetMeUseCase(userRepo, teamRepo, teamMemberRepo, roleRepo, logger)
 	startOAuthUC := authusecase.NewStartOAuthUseCase(oauthRegistry)
 	completeOAuthUC := authusecase.NewCompleteOAuthUseCase(oauthRegistry, userRepo, oauthAccountRepo, jwtService, logger)
 	issueLoginCodeUC := authusecase.NewIssueOAuthLoginCodeUseCase(oauthLoginCodeRepo)
-	exchangeLoginCodeUC := authusecase.NewExchangeOAuthLoginCodeUseCase(oauthLoginCodeRepo)
+	exchangeLoginCodeUC := authusecase.NewExchangeOAuthLoginCodeUseCase(oauthLoginCodeRepo, userRepo, jwtService)
 
 	createStartupUC := startupusecase.NewCreateStartupUseCase(startupRepo, teamRepo, teamMemberRepo, roleRepo, memberRepo, userRepo, tokenGen, logger)
 	updateStartupUC := startupusecase.NewUpdateStartupUseCase(startupRepo, authService, logger)
@@ -133,7 +134,7 @@ func main() {
 	v := validator.NewValidator()
 	secureCookies := cfg.Environment == "production" || cfg.Environment == "prod"
 	authHandler := handler.NewAuthHandler(
-		registerUC, loginUC, refreshTokenUC, getMeUC,
+		registerUC, loginUC, refreshTokenUC, logoutUC, getMeUC,
 		startOAuthUC, completeOAuthUC, issueLoginCodeUC, exchangeLoginCodeUC,
 		cfg.AppURL, secureCookies, v,
 	)
@@ -159,10 +160,12 @@ func main() {
 		TeamHandler:    teamHandler,
 		AdminHandler:   adminHandler,
 		JWTService:     jwtService,
+		AuthService:    authService,
 		StartupRepo:    startupRepo,
 		AllowedOrigins: cfg.CORS.AllowedOrigins,
 		RateLimit:      cfg.RateLimit,
 		InternalKey:    cfg.InternalKey,
+		TrustedProxies: cfg.TrustedProxies,
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: r}

@@ -8,11 +8,12 @@ import (
 
 // Config holds application configuration
 type Config struct {
-	Port         string
-	DatabaseURL  string
-	BackendURL   string
-	BackendToken string
-	Environment  string
+	Port            string
+	DatabaseURL     string
+	BackendURL      string
+	BackendToken    string
+	CrawlerAPIToken string
+	Environment     string
 }
 
 // Load loads configuration from environment variables
@@ -21,11 +22,12 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	return &Config{
-		Port:         getEnv("PORT", "8080"),
-		DatabaseURL:  getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/crawler?sslmode=disable"),
-		BackendURL:   getEnv("BACKEND_URL", "http://localhost:8080"),
-		BackendToken: getEnv("BACKEND_TOKEN", ""),
-		Environment:  getEnv("ENVIRONMENT", "development"),
+		Port:            getEnv("PORT", "8080"),
+		DatabaseURL:     getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/crawler?sslmode=disable"),
+		BackendURL:      getEnv("BACKEND_URL", "http://localhost:8080"),
+		BackendToken:    getEnv("BACKEND_TOKEN", ""),
+		CrawlerAPIToken: getEnv("CRAWLER_API_TOKEN", ""),
+		Environment:     getEnv("ENVIRONMENT", "development"),
 	}, nil
 }
 

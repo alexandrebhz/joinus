@@ -50,7 +50,7 @@ func (uc *LoginUseCase) Execute(ctx context.Context, input dto.LoginInput) (*dto
 		return nil, err
 	}
 
-	refreshToken, err := uc.jwtService.GenerateRefreshToken(user.ID)
+	refreshToken, err := uc.jwtService.GenerateRefreshToken(user.ID, user.TokenVersion)
 	if err != nil {
 		return nil, err
 	}

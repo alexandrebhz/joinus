@@ -212,7 +212,8 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               <Card>
                 <CardContent className="pt-6">
                   <div className="space-y-4">
-                    {job.applicationUrl ? (
+                    {job.applicationUrl &&
+                    /^https?:\/\//i.test(job.applicationUrl) ? (
                       <a href={job.applicationUrl} target="_blank" rel="noopener noreferrer">
                         <Button className="w-full" size="lg">
                           <ExternalLink className="h-4 w-4 mr-2" />

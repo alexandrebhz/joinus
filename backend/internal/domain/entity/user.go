@@ -9,8 +9,9 @@ type User struct {
 	Name      string
 	Role      UserRole
 	StartupID *string
-	Status    UserStatus
-	CreatedAt time.Time
+	Status       UserStatus
+	TokenVersion int
+	CreatedAt    time.Time
 	UpdatedAt time.Time
 }
 

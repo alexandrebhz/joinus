@@ -41,6 +41,8 @@ type StartupOutput struct {
 	Status          string  `json:"status"`
 	Plan            string  `json:"plan"`
 	PlanExpiresAt   *string `json:"plan_expires_at"`
+	// APIToken is only set on create (plaintext shown once); never on list/get.
+	APIToken        string  `json:"api_token,omitempty"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
 }

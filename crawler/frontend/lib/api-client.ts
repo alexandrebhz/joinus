@@ -125,10 +125,14 @@ class CrawlerApiClient {
 
   constructor() {
     const baseURL = process.env.NEXT_PUBLIC_CRAWLER_API_URL || 'http://localhost:8081'
+    // Token for the private crawler admin UI. Exposed via NEXT_PUBLIC_ because
+    // API calls are made from the browser (axios). Acceptable for an internal tool.
+    const apiToken = process.env.NEXT_PUBLIC_CRAWLER_API_TOKEN || ''
     this.client = axios.create({
       baseURL: `${baseURL}/api/v1`,
       headers: {
         'Content-Type': 'application/json',
+        ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {}),
       },
     })
   }

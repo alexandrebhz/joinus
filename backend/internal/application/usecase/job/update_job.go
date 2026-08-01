@@ -10,6 +10,7 @@ import (
 	"github.com/startup-job-board/backend/internal/domain/service"
 	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/logger"
+	"github.com/startup-job-board/backend/pkg/utils"
 )
 
 type UpdateJobUseCase struct {
@@ -33,16 +34,21 @@ func NewUpdateJobUseCase(
 	}
 }
 
-func (uc *UpdateJobUseCase) Execute(ctx context.Context, input dto.UpdateJobInput, userID string) (*dto.JobOutput, error) {
+func (uc *UpdateJobUseCase) Execute(ctx context.Context, input dto.UpdateJobInput, userID string, apiTokenStartupID string) (*dto.JobOutput, error) {
 	job, err := uc.jobRepo.FindByID(ctx, input.ID)
 	if err != nil {
 		return nil, errors.NewNotFoundError("job")
 	}
 
-	// Check permission
-	canManage, err := uc.authService.CanManageJobs(ctx, userID, job.StartupID)
-	if err != nil || !canManage {
-		return nil, errors.NewForbiddenError("you don't have permission to update this job")
+	if apiTokenStartupID != "" {
+		if job.StartupID != apiTokenStartupID {
+			return nil, errors.NewForbiddenError("you don't have permission to update this job")
+		}
+	} else {
+		canManage, err := uc.authService.CanManageJobs(ctx, userID, job.StartupID)
+		if err != nil || !canManage {
+			return nil, errors.NewForbiddenError("you don't have permission to update this job")
+		}
 	}
 
 	// Update fields
@@ -77,6 +83,9 @@ func (uc *UpdateJobUseCase) Execute(ctx context.Context, input dto.UpdateJobInpu
 		job.Currency = *input.Currency
 	}
 	if input.ApplicationURL != nil {
+		if *input.ApplicationURL != "" && !utils.IsHTTPURL(*input.ApplicationURL) {
+			return nil, errors.NewBadRequestError("application_url must be a valid http or https URL")
+		}
 		job.ApplicationURL = input.ApplicationURL
 	}
 	if input.ApplicationEmail != nil {

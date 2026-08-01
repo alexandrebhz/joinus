@@ -64,11 +64,15 @@ async function collectPublicUrls(): Promise<string[]> {
  */
 export async function POST(request: NextRequest) {
   const secret = process.env.INDEXNOW_SECRET
-  if (secret) {
-    const provided = request.headers.get('x-indexnow-secret')
-    if (provided !== secret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!secret) {
+    return NextResponse.json(
+      { error: 'INDEXNOW_SECRET is required' },
+      { status: 503 }
+    )
+  }
+  const provided = request.headers.get('x-indexnow-secret')
+  if (provided !== secret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   let body: Body = {}
@@ -78,7 +82,17 @@ export async function POST(request: NextRequest) {
     body = {}
   }
 
-  const urls = body.all || !body.urls?.length ? await collectPublicUrls() : body.urls
+  // Only allow site-relative paths or absolute URLs on our host (no open redirect spam).
+  const siteHost = new URL(getSiteUrl()).host
+  const rawUrls = body.all || !body.urls?.length ? await collectPublicUrls() : body.urls
+  const urls = rawUrls.filter((u) => {
+    try {
+      if (u.startsWith('/')) return true
+      return new URL(u).host === siteHost
+    } catch {
+      return false
+    }
+  })
 
   // IndexNow accepts up to 10,000 URLs per request; chunk to stay safe.
   const chunkSize = 1000
@@ -99,7 +113,6 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     host: new URL(getSiteUrl()).host,
-    key: INDEXNOW_KEY,
     submitted,
     ok: !error,
     status: lastStatus,
@@ -111,6 +124,7 @@ export async function GET() {
   return NextResponse.json({
     endpoint: '/api/indexnow',
     method: 'POST',
+    auth: 'Header x-indexnow-secret required',
     keyLocation: absoluteUrl(`/${INDEXNOW_KEY}.txt`),
     usage: {
       all: 'POST { "all": true }',

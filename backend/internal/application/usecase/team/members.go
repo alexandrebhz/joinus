@@ -103,8 +103,11 @@ func (uc *InviteMemberUseCase) Execute(ctx context.Context, teamID, inviterID st
 	if err != nil {
 		return errors.NewBadRequestError("invalid role")
 	}
+	if role.TeamID == nil {
+		return errors.NewBadRequestError("cannot assign system role")
+	}
 	// Do not allow assigning roles from another team.
-	if role.TeamID != nil && *role.TeamID != teamID {
+	if *role.TeamID != teamID {
 		return errors.NewBadRequestError("invalid role")
 	}
 

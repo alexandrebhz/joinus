@@ -7,6 +7,7 @@ import (
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
 	"github.com/startup-job-board/backend/internal/infrastructure/persistence/gorm_model"
+	"github.com/startup-job-board/backend/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -89,22 +90,10 @@ func (r *JobRepositoryImpl) List(ctx context.Context, filter repository.JobFilte
 		query = query.Offset(offset).Limit(filter.PageSize)
 	}
 
-	// Apply ordering using GORM's Order method
-	orderBy := "created_at"
-	if filter.OrderBy != "" {
-		orderBy = filter.OrderBy
-	}
-	orderDir := "DESC"
-	if filter.OrderDir != "" {
-		orderDir = strings.ToUpper(filter.OrderDir)
-	}
+	orderBy, orderDir := utils.SanitizeOrder(filter.OrderBy, filter.OrderDir, utils.JobOrderColumns, "created_at")
 	// Boosted jobs (with an active boost) are surfaced first, then the requested ordering applies.
 	query = query.Order("(boosted_until IS NOT NULL AND boosted_until > NOW()) DESC")
-	if orderDir == "ASC" {
-		query = query.Order(orderBy + " ASC")
-	} else {
-		query = query.Order(orderBy + " DESC")
-	}
+	query = query.Order(orderBy + " " + orderDir)
 
 	var models []gorm_model.Job
 	if err := query.Find(&models).Error; err != nil {

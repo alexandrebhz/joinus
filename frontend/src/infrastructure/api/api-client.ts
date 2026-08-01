@@ -96,87 +96,38 @@ export class ApiClient implements IApiClient {
   }
 
   constructor(baseURL?: string) {
-    // Safely get the URL, handling undefined values
-    const rawUrl = baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-    
-    // Log the raw environment variable value for debugging (only in browser)
-    if (typeof window !== 'undefined') {
-      console.log('[ApiClient] Environment check:', {
-        'process.env.NEXT_PUBLIC_API_URL': process.env.NEXT_PUBLIC_API_URL,
-        'rawUrl parameter': rawUrl,
-        'window.location.origin': window.location.origin
-      })
-    }
-    
-    const normalizedUrl = this.normalizeApiUrl(rawUrl)
-    
-    // Warn if URL was normalized (indicates misconfiguration)
-    if (rawUrl !== normalizedUrl && typeof window !== 'undefined') {
-      console.warn('[ApiClient] API URL was normalized:', {
-        original: rawUrl,
-        normalized: normalizedUrl,
-        message: 'NEXT_PUBLIC_API_URL appears to be incorrectly formatted. Please set it to the backend URL only (e.g., https://joinus-production.up.railway.app)'
-      })
-    }
-    
-    this.baseURL = normalizedUrl
-    
-    // Always log in production to help debug URL issues
-    if (typeof window !== 'undefined') {
-      console.log('[ApiClient] Final baseURL:', this.baseURL)
-    }
-    
-    // Ensure baseURL is absolute (starts with http:// or https://)
-    // This is critical - axios will treat URLs without protocol as relative to current origin
+    // Browser: same-origin BFF proxy (HttpOnly cookies). SSR: direct backend URL.
+    const isBrowser = typeof window !== 'undefined'
     let absoluteBaseURL: string
-    if (this.baseURL.startsWith('http://') || this.baseURL.startsWith('https://')) {
-      absoluteBaseURL = `${this.baseURL}/api/v1`
+
+    if (isBrowser && !baseURL) {
+      this.baseURL = '/api/backend'
+      absoluteBaseURL = '/api/backend'
     } else {
-      // If no protocol, assume HTTPS for production
-      absoluteBaseURL = `https://${this.baseURL}/api/v1`
-      console.warn('[ApiClient] baseURL missing protocol, assuming HTTPS:', absoluteBaseURL)
+      const rawUrl = baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+      const normalizedUrl = this.normalizeApiUrl(rawUrl)
+      this.baseURL = normalizedUrl
+      if (normalizedUrl.startsWith('http://') || normalizedUrl.startsWith('https://')) {
+        absoluteBaseURL = `${normalizedUrl}/api/v1`
+      } else {
+        absoluteBaseURL = `https://${normalizedUrl}/api/v1`
+      }
+      if (!absoluteBaseURL.match(/^https?:\/\//)) {
+        throw new Error(`Invalid API baseURL: ${absoluteBaseURL}`)
+      }
     }
-    
-    // Final validation - ensure it's truly absolute
-    if (!absoluteBaseURL.match(/^https?:\/\//)) {
-      throw new Error(`Invalid API baseURL: ${absoluteBaseURL}. Must start with http:// or https://`)
-    }
-    
+
     this.client = axios.create({
       baseURL: absoluteBaseURL,
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: isBrowser,
     })
 
-    // Request interceptor to add auth token, SSR internal key, and log URLs
     this.client.interceptors.request.use(
       (config) => {
-        // Log the actual URL being used (helpful for debugging)
-        if (typeof window !== 'undefined') {
-          const fullUrl = config.baseURL && config.url
-            ? `${config.baseURL}${config.url.startsWith('/') ? '' : '/'}${config.url}`
-            : config.url
-          
-          // Log in production if URL looks wrong
-          if (fullUrl && fullUrl.includes('joinus.ie') && fullUrl.includes('railway.app')) {
-            console.error('[ApiClient] Detected malformed URL:', {
-              fullUrl,
-              baseURL: config.baseURL,
-              url: config.url,
-              envVar: process.env.NEXT_PUBLIC_API_URL,
-              normalizedBaseURL: this.baseURL
-            })
-          }
-        }
-        
-        if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('access_token')
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`
-          }
-        } else {
-          // Server-side only: never expose this key to the browser bundle
+        if (!isBrowser) {
           const internalKey = process.env.API_INTERNAL_KEY
           if (internalKey) {
             config.headers['X-Internal-Key'] = internalKey
@@ -187,32 +138,13 @@ export class ApiClient implements IApiClient {
       (error) => Promise.reject(error)
     )
 
-    // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError<ApiError>) => {
-        if (error.response?.status === 401 && typeof window !== 'undefined') {
-          // Try to refresh token
-          const refreshToken = localStorage.getItem('refresh_token')
-          if (refreshToken) {
-            try {
-              const response = await this.refreshToken(refreshToken)
-              if (response.success && response.data.access_token) {
-                localStorage.setItem('access_token', response.data.access_token)
-                // Retry original request
-                if (error.config) {
-                  error.config.headers.Authorization = `Bearer ${response.data.access_token}`
-                  return this.client.request(error.config)
-                }
-              }
-            } catch {
-              // Refresh failed, clear tokens and redirect to login
-              localStorage.removeItem('access_token')
-              localStorage.removeItem('refresh_token')
-              if (window.location.pathname !== '/login') {
-                window.location.href = '/login'
-              }
-            }
+        if (error.response?.status === 401 && isBrowser) {
+          // BFF proxy already attempts refresh via HttpOnly cookie; send user to login.
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login'
           }
         }
         return Promise.reject(error)
@@ -231,96 +163,79 @@ export class ApiClient implements IApiClient {
   }
 
   // Auth methods
+  private toAuthResponse(response: ApiResponse<{
+    access_token?: string
+    refresh_token?: string
+    user: any
+  }>): ApiResponse<AuthResponse> {
+    // Tokens are stored in HttpOnly cookies by the BFF proxy and redacted from JSON.
+    return {
+      ...response,
+      data: {
+        accessToken: response.data.access_token || '',
+        refreshToken: response.data.refresh_token || '',
+        user: response.data.user,
+      },
+    }
+  }
+
   async register(data: RegisterRequest): Promise<ApiResponse<AuthResponse>> {
     const response = await this.request<{
-      access_token: string
-      refresh_token: string
+      access_token?: string
+      refresh_token?: string
       user: any
     }>({
       method: 'POST',
       url: '/auth/register',
       data,
     })
-    
-    // Store tokens
-    if (typeof window !== 'undefined' && response.data) {
-      localStorage.setItem('access_token', response.data.access_token)
-      localStorage.setItem('refresh_token', response.data.refresh_token)
-    }
-    
-    // Transform to match AuthResponse interface
-    return {
-      ...response,
-      data: {
-        accessToken: response.data.access_token,
-        refreshToken: response.data.refresh_token,
-        user: response.data.user,
-      },
-    }
+    return this.toAuthResponse(response)
   }
 
   async login(data: LoginRequest): Promise<ApiResponse<AuthResponse>> {
     const response = await this.request<{
-      access_token: string
-      refresh_token: string
+      access_token?: string
+      refresh_token?: string
       user: any
     }>({
       method: 'POST',
       url: '/auth/login',
       data,
     })
-    
-    // Store tokens and transform response
-    if (typeof window !== 'undefined' && response.data) {
-      localStorage.setItem('access_token', response.data.access_token)
-      localStorage.setItem('refresh_token', response.data.refresh_token)
-    }
-    
-    // Transform to match AuthResponse interface
-    return {
-      ...response,
-      data: {
-        accessToken: response.data.access_token,
-        refreshToken: response.data.refresh_token,
-        user: response.data.user,
-      },
-    }
+    return this.toAuthResponse(response)
   }
 
   async refreshToken(refreshToken: string): Promise<ApiResponse<{ access_token: string }>> {
-    const response = await this.request<{ access_token: string }>({
+    return this.request<{ access_token: string }>({
       method: 'POST',
       url: '/auth/refresh',
       data: { refresh_token: refreshToken },
     })
-    return response
   }
 
-  /** Exchange a one-time OAuth login code for JWTs (tokens never appear in the URL). */
+  async logout(): Promise<void> {
+    try {
+      await this.request({ method: 'POST', url: '/auth/logout' })
+    } catch {
+      // clear cookies even if network fails
+      if (typeof window !== 'undefined') {
+        await fetch('/api/auth/session', { method: 'DELETE' })
+      }
+    }
+  }
+
+  /** Exchange a one-time OAuth login code for a session (tokens in HttpOnly cookies). */
   async exchangeOAuthCode(code: string): Promise<ApiResponse<AuthResponse>> {
     const response = await this.request<{
-      access_token: string
-      refresh_token: string
+      access_token?: string
+      refresh_token?: string
       user: any
     }>({
       method: 'POST',
       url: '/auth/oauth/exchange',
       data: { code },
     })
-
-    if (typeof window !== 'undefined' && response.data) {
-      localStorage.setItem('access_token', response.data.access_token)
-      localStorage.setItem('refresh_token', response.data.refresh_token)
-    }
-
-    return {
-      ...response,
-      data: {
-        accessToken: response.data.access_token,
-        refreshToken: response.data.refresh_token,
-        user: response.data.user,
-      },
-    }
+    return this.toAuthResponse(response)
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {

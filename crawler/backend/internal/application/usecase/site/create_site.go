@@ -9,6 +9,7 @@ import (
 	"github.com/startup-job-board/crawler/internal/application/dto"
 	"github.com/startup-job-board/crawler/internal/domain/entity"
 	"github.com/startup-job-board/crawler/internal/domain/repository"
+	"github.com/startup-job-board/crawler/internal/pkg/ssrf"
 )
 
 // CreateSiteUseCase handles creating a new crawl site
@@ -25,6 +26,10 @@ func NewCreateSiteUseCase(siteRepo repository.SiteRepository) *CreateSiteUseCase
 
 // Execute creates a new crawl site
 func (uc *CreateSiteUseCase) Execute(ctx context.Context, input dto.CreateSiteInput) (*dto.SiteOutput, error) {
+	if err := ssrf.ValidatePublicHTTPURL(input.BaseURL); err != nil {
+		return nil, err
+	}
+
 	// Parse pagination config
 	paginationConfig := entity.PaginationConfig{}
 	paginationJSON, _ := json.Marshal(input.PaginationConfig)

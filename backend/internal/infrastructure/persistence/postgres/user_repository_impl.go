@@ -77,8 +77,9 @@ func (r *UserRepositoryImpl) toModel(user *entity.User) *gorm_model.User {
 		Name:      user.Name,
 		Role:      string(user.Role),
 		StartupID: user.StartupID,
-		Status:    string(user.Status),
-		CreatedAt: user.CreatedAt,
+		Status:       string(user.Status),
+		TokenVersion: user.TokenVersion,
+		CreatedAt:    user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
 }
@@ -91,8 +92,9 @@ func (r *UserRepositoryImpl) toDomain(model *gorm_model.User) *entity.User {
 		Name:      model.Name,
 		Role:      entity.UserRole(model.Role),
 		StartupID: model.StartupID,
-		Status:    entity.UserStatus(model.Status),
-		CreatedAt: model.CreatedAt,
+		Status:       entity.UserStatus(model.Status),
+		TokenVersion: model.TokenVersion,
+		CreatedAt:    model.CreatedAt,
 		UpdatedAt: model.UpdatedAt,
 	}
 }

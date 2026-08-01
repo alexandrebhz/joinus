@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/startup-job-board/backend/internal/application/dto"
+	"github.com/startup-job-board/backend/internal/application/port"
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
 	"github.com/startup-job-board/backend/pkg/errors"
@@ -16,7 +17,7 @@ import (
 
 const oauthLoginCodeTTL = 60 * time.Second
 
-// IssueOAuthLoginCodeUseCase stores JWTs server-side and returns an opaque one-time code
+// IssueOAuthLoginCodeUseCase stores only the user ID server-side and returns an opaque one-time code
 // safe to put in a redirect URL.
 type IssueOAuthLoginCodeUseCase struct {
 	codeRepo repository.OAuthLoginCodeRepository
@@ -33,13 +34,11 @@ func (uc *IssueOAuthLoginCodeUseCase) Execute(ctx context.Context, auth *dto.Aut
 	}
 	now := time.Now()
 	record := &entity.OAuthLoginCode{
-		ID:           uuid.New().String(),
-		CodeHash:     hashOAuthCode(plain),
-		AccessToken:  auth.AccessToken,
-		RefreshToken: auth.RefreshToken,
-		UserID:       auth.User.ID,
-		ExpiresAt:    now.Add(oauthLoginCodeTTL),
-		CreatedAt:    now,
+		ID:        uuid.New().String(),
+		CodeHash:  hashOAuthCode(plain),
+		UserID:    auth.User.ID,
+		ExpiresAt: now.Add(oauthLoginCodeTTL),
+		CreatedAt: now,
 	}
 	if err := uc.codeRepo.Create(ctx, record); err != nil {
 		return "", err
@@ -48,13 +47,21 @@ func (uc *IssueOAuthLoginCodeUseCase) Execute(ctx context.Context, auth *dto.Aut
 	return plain, nil
 }
 
-// ExchangeOAuthLoginCodeUseCase consumes a one-time code and returns the JWT pair once.
+// ExchangeOAuthLoginCodeUseCase consumes a one-time code and issues fresh JWTs.
 type ExchangeOAuthLoginCodeUseCase struct {
-	codeRepo repository.OAuthLoginCodeRepository
+	codeRepo   repository.OAuthLoginCodeRepository
+	userRepo   repository.UserRepository
+	jwtService port.JWTService
 }
 
-func NewExchangeOAuthLoginCodeUseCase(codeRepo repository.OAuthLoginCodeRepository) *ExchangeOAuthLoginCodeUseCase {
-	return &ExchangeOAuthLoginCodeUseCase{codeRepo: codeRepo}
+func NewExchangeOAuthLoginCodeUseCase(
+	codeRepo repository.OAuthLoginCodeRepository,
+	userRepo repository.UserRepository,
+	jwtService port.JWTService,
+) *ExchangeOAuthLoginCodeUseCase {
+	return &ExchangeOAuthLoginCodeUseCase{
+		codeRepo: codeRepo, userRepo: userRepo, jwtService: jwtService,
+	}
 }
 
 func (uc *ExchangeOAuthLoginCodeUseCase) Execute(ctx context.Context, input dto.ExchangeOAuthCodeInput) (*dto.AuthOutput, error) {
@@ -74,10 +81,29 @@ func (uc *ExchangeOAuthLoginCodeUseCase) Execute(ctx context.Context, input dto.
 		return nil, errors.NewUnauthorizedError("invalid or expired code")
 	}
 
+	user, err := uc.userRepo.FindByID(ctx, record.UserID)
+	if err != nil {
+		return nil, errors.NewUnauthorizedError("invalid or expired code")
+	}
+	if user.Status != entity.UserStatusActive {
+		return nil, errors.NewUnauthorizedError("account is not active")
+	}
+
+	accessToken, err := uc.jwtService.GenerateAccessToken(user.ID, string(user.Role))
+	if err != nil {
+		return nil, err
+	}
+	refreshToken, err := uc.jwtService.GenerateRefreshToken(user.ID, user.TokenVersion)
+	if err != nil {
+		return nil, err
+	}
+
 	return &dto.AuthOutput{
-		AccessToken:  record.AccessToken,
-		RefreshToken: record.RefreshToken,
-		User:         dto.UserOutput{ID: record.UserID},
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		User: dto.UserOutput{
+			ID: user.ID, Email: user.Email, Name: user.Name, Role: string(user.Role),
+		},
 	}, nil
 }
 

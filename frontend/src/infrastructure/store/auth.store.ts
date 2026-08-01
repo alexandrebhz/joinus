@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { User } from '@/domain/entities/user.entity'
+import { apiClient } from '@/infrastructure/api/api-client'
 
 interface AuthState {
   user: User | null
@@ -9,25 +10,13 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null,
-  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('access_token') : false,
+  user: null,
+  isAuthenticated: false,
   setUser: (user) => {
-    if (typeof window !== 'undefined') {
-      if (user) {
-        localStorage.setItem('user', JSON.stringify(user))
-      } else {
-        localStorage.removeItem('user')
-      }
-    }
     set({ user, isAuthenticated: !!user })
   },
   logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      localStorage.removeItem('user')
-    }
+    void apiClient.logout()
     set({ user: null, isAuthenticated: false })
   },
 }))
-

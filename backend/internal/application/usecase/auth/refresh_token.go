@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"time"
 
 	"github.com/startup-job-board/backend/internal/application/dto"
 	"github.com/startup-job-board/backend/internal/domain/repository"
@@ -29,13 +30,11 @@ func NewRefreshTokenUseCase(
 }
 
 func (uc *RefreshTokenUseCase) Execute(ctx context.Context, refreshToken string) (*dto.AuthOutput, error) {
-	// Validate refresh token
-	userID, err := uc.jwtService.ValidateRefreshToken(refreshToken)
+	userID, version, err := uc.jwtService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, errors.ErrUnauthorized
 	}
 
-	// Get user
 	user, err := uc.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return nil, errors.ErrUnauthorized
@@ -45,13 +44,22 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, refreshToken string)
 		return nil, errors.NewForbiddenError("account is not active")
 	}
 
-	// Generate new tokens
+	if user.TokenVersion != version {
+		return nil, errors.ErrUnauthorized
+	}
+
+	user.TokenVersion++
+	user.UpdatedAt = time.Now()
+	if err := uc.userRepo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
 	accessToken, err := uc.jwtService.GenerateAccessToken(user.ID, string(user.Role))
 	if err != nil {
 		return nil, err
 	}
 
-	newRefreshToken, err := uc.jwtService.GenerateRefreshToken(user.ID)
+	newRefreshToken, err := uc.jwtService.GenerateRefreshToken(user.ID, user.TokenVersion)
 	if err != nil {
 		return nil, err
 	}

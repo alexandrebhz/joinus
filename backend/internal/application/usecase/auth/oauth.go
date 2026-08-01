@@ -120,7 +120,7 @@ func (uc *CompleteOAuthUseCase) Execute(ctx context.Context, providerName, code 
 	if err != nil {
 		return nil, err
 	}
-	refresh, err := uc.jwtService.GenerateRefreshToken(user.ID)
+	refresh, err := uc.jwtService.GenerateRefreshToken(user.ID, user.TokenVersion)
 	if err != nil {
 		return nil, err
 	}
