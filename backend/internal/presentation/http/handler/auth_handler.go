@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/startup-job-board/backend/internal/application/dto"
@@ -14,14 +15,17 @@ import (
 )
 
 type AuthHandler struct {
-	registerUseCase     *authusecase.RegisterUseCase
-	loginUseCase        *authusecase.LoginUseCase
-	refreshTokenUseCase *authusecase.RefreshTokenUseCase
-	getMeUseCase        *authusecase.GetMeUseCase
-	startOAuthUseCase   *authusecase.StartOAuthUseCase
-	completeOAuthUseCase *authusecase.CompleteOAuthUseCase
-	frontendURL         string
-	validator           *validator.Validator
+	registerUseCase          *authusecase.RegisterUseCase
+	loginUseCase             *authusecase.LoginUseCase
+	refreshTokenUseCase      *authusecase.RefreshTokenUseCase
+	getMeUseCase             *authusecase.GetMeUseCase
+	startOAuthUseCase        *authusecase.StartOAuthUseCase
+	completeOAuthUseCase     *authusecase.CompleteOAuthUseCase
+	issueLoginCodeUseCase    *authusecase.IssueOAuthLoginCodeUseCase
+	exchangeLoginCodeUseCase *authusecase.ExchangeOAuthLoginCodeUseCase
+	frontendURL              string
+	secureCookies            bool
+	validator                *validator.Validator
 }
 
 func NewAuthHandler(
@@ -31,14 +35,18 @@ func NewAuthHandler(
 	getMeUseCase *authusecase.GetMeUseCase,
 	startOAuthUseCase *authusecase.StartOAuthUseCase,
 	completeOAuthUseCase *authusecase.CompleteOAuthUseCase,
+	issueLoginCodeUseCase *authusecase.IssueOAuthLoginCodeUseCase,
+	exchangeLoginCodeUseCase *authusecase.ExchangeOAuthLoginCodeUseCase,
 	frontendURL string,
+	secureCookies bool,
 	validator *validator.Validator,
 ) *AuthHandler {
 	return &AuthHandler{
 		registerUseCase: registerUseCase, loginUseCase: loginUseCase,
 		refreshTokenUseCase: refreshTokenUseCase, getMeUseCase: getMeUseCase,
 		startOAuthUseCase: startOAuthUseCase, completeOAuthUseCase: completeOAuthUseCase,
-		frontendURL: frontendURL, validator: validator,
+		issueLoginCodeUseCase: issueLoginCodeUseCase, exchangeLoginCodeUseCase: exchangeLoginCodeUseCase,
+		frontendURL: frontendURL, secureCookies: secureCookies, validator: validator,
 	}
 }
 
@@ -114,7 +122,6 @@ func (h *AuthHandler) OAuthStart(c *gin.Context) {
 	authURL, state, err := h.startOAuthUseCase.Execute(provider)
 	if err != nil {
 		if appErr, ok := err.(*errors.AppError); ok && appErr.Code == "BAD_REQUEST" {
-			// Apple/GitHub stubs
 			response.Error(c, http.StatusNotImplemented, err)
 			return
 		}
@@ -125,7 +132,7 @@ func (h *AuthHandler) OAuthStart(c *gin.Context) {
 		response.Error(c, http.StatusNotImplemented, errors.NewBadRequestError(provider+" oauth is not implemented yet"))
 		return
 	}
-	c.SetCookie("oauth_state", state, 600, "/", "", false, true)
+	h.setOAuthStateCookie(c, state, 600)
 	c.Redirect(http.StatusFound, authURL)
 }
 
@@ -138,7 +145,7 @@ func (h *AuthHandler) OAuthCallback(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, errors.NewBadRequestError("invalid oauth state"))
 		return
 	}
-	c.SetCookie("oauth_state", "", -1, "/", "", false, true)
+	h.clearOAuthStateCookie(c)
 
 	result, err := h.completeOAuthUseCase.Execute(c.Request.Context(), provider, code)
 	if err != nil {
@@ -146,8 +153,41 @@ func (h *AuthHandler) OAuthCallback(c *gin.Context) {
 		return
 	}
 
-	// Redirect to frontend with tokens in fragment would be ideal; query is used for SPA pickup.
-	redirect := h.frontendURL + "/auth/callback?access_token=" + url.QueryEscape(result.AccessToken) +
-		"&refresh_token=" + url.QueryEscape(result.RefreshToken)
+	loginCode, err := h.issueLoginCodeUseCase.Execute(c.Request.Context(), result)
+	if err != nil {
+		mapUCError(c, err)
+		return
+	}
+
+	// Only an opaque one-time code is sent to the frontend — never JWTs in the URL.
+	redirect := strings.TrimRight(h.frontendURL, "/") + "/auth/callback?code=" + url.QueryEscape(loginCode)
 	c.Redirect(http.StatusFound, redirect)
+}
+
+func (h *AuthHandler) ExchangeOAuthCode(c *gin.Context) {
+	var input dto.ExchangeOAuthCodeInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := h.validator.Validate(input); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	result, err := h.exchangeLoginCodeUseCase.Execute(c.Request.Context(), input)
+	if err != nil {
+		mapUCError(c, err)
+		return
+	}
+	response.Success(c, result)
+}
+
+func (h *AuthHandler) setOAuthStateCookie(c *gin.Context, state string, maxAge int) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("oauth_state", state, maxAge, "/", "", h.secureCookies, true)
+}
+
+func (h *AuthHandler) clearOAuthStateCookie(c *gin.Context) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("oauth_state", "", -1, "/", "", h.secureCookies, true)
 }

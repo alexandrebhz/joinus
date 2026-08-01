@@ -290,6 +290,33 @@ export class ApiClient implements IApiClient {
     return response
   }
 
+  /** Exchange a one-time OAuth login code for JWTs (tokens never appear in the URL). */
+  async exchangeOAuthCode(code: string): Promise<ApiResponse<AuthResponse>> {
+    const response = await this.request<{
+      access_token: string
+      refresh_token: string
+      user: any
+    }>({
+      method: 'POST',
+      url: '/auth/oauth/exchange',
+      data: { code },
+    })
+
+    if (typeof window !== 'undefined' && response.data) {
+      localStorage.setItem('access_token', response.data.access_token)
+      localStorage.setItem('refresh_token', response.data.refresh_token)
+    }
+
+    return {
+      ...response,
+      data: {
+        accessToken: response.data.access_token,
+        refreshToken: response.data.refresh_token,
+        user: response.data.user,
+      },
+    }
+  }
+
   async getCurrentUser(): Promise<ApiResponse<User>> {
     return this.request<User>({
       method: 'GET',

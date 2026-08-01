@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 import { Header } from '@/presentation/components/layout/header'
 import { Footer } from '@/presentation/components/layout/footer'
 import { apiClient } from '@/infrastructure/api/api-client'
@@ -17,18 +16,16 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const run = async () => {
-      const accessToken = searchParams.get('access_token')
-      const refreshToken = searchParams.get('refresh_token')
-
-      if (!accessToken || !refreshToken) {
-        setError('Missing authentication tokens. Please try signing in again.')
+      const code = searchParams.get('code')
+      if (!code) {
+        setError('Missing login code. Please try signing in again.')
         return
       }
 
-      localStorage.setItem('access_token', accessToken)
-      localStorage.setItem('refresh_token', refreshToken)
-
       try {
+        // One-time code → JWTs over HTTPS JSON (never from the query string).
+        await apiClient.exchangeOAuthCode(code)
+
         const response = await apiClient.getCurrentUser()
         if (response.success && response.data) {
           const raw = response.data as unknown as Record<string, unknown>
@@ -37,17 +34,18 @@ function AuthCallbackContent() {
             email: String(raw.email),
             name: String(raw.name),
             role: String(raw.role) as UserRole,
-            status: (String(raw.status || 'active') as UserStatus),
+            status: String(raw.status || 'active') as UserStatus,
             createdAt: String(raw.created_at || new Date().toISOString()),
             updatedAt: String(raw.updated_at || new Date().toISOString()),
           }
           setUser(user)
+          // Drop ?code= from the address bar after success.
           router.replace('/dashboard')
           return
         }
         setError('Could not load your profile after Google sign-in.')
       } catch {
-        setError('Google sign-in succeeded but profile load failed. Try signing in again.')
+        setError('Google sign-in failed or the login code expired. Please try again.')
       }
     }
 

@@ -16,8 +16,8 @@ type RefreshTokenInput struct {
 }
 
 type AuthOutput struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string     `json:"access_token"`
+	RefreshToken string     `json:"refresh_token"`
 	User         UserOutput `json:"user"`
 }
 
@@ -26,6 +26,10 @@ type UserOutput struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`
 	Role  string `json:"role"`
+}
+
+type ExchangeOAuthCodeInput struct {
+	Code string `json:"code" validate:"required"`
 }
 
 
