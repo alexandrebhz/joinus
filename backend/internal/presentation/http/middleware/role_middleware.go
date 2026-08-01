@@ -1,8 +1,11 @@
 package middleware
 
 import (
+	"context"
+
 	"github.com/gin-gonic/gin"
 	"github.com/startup-job-board/backend/internal/domain/entity"
+	"github.com/startup-job-board/backend/internal/domain/service"
 	"github.com/startup-job-board/backend/internal/presentation/http/response"
 )
 
@@ -35,11 +38,17 @@ func RequireRole(allowedRoles ...entity.UserRole) gin.HandlerFunc {
 	}
 }
 
-// RequirePlatformAdmin allows platform_admin and legacy admin JWT roles.
-func RequirePlatformAdmin() gin.HandlerFunc {
+// RequirePlatformAdmin checks platform admin status against the database.
+func RequirePlatformAdmin(authService *service.AuthorizationService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userRole := entity.UserRole(GetUserRole(c))
-		if !userRole.IsPlatformAdmin() {
+		userID := GetUserID(c)
+		if userID == "" {
+			response.Forbidden(c)
+			c.Abort()
+			return
+		}
+		ok, err := authService.IsPlatformAdmin(context.Background(), userID)
+		if err != nil || !ok {
 			response.Forbidden(c)
 			c.Abort()
 			return

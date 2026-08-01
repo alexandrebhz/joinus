@@ -1,6 +1,16 @@
 import { Job } from '@/domain/entities/job.entity'
 import { absoluteUrl, getSiteUrl } from '@/lib/seo'
 
+/** Escape </ for safe embedding in <script> (JSON.stringify alone is not enough). */
+function safeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
+}
+
 export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
   const structuredData = {
     '@context': 'https://schema.org',
@@ -61,7 +71,7 @@ export function JobPostingStructuredData({ jobs }: { jobs: Job[] }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(structuredData) }}
     />
   )
 }
@@ -89,7 +99,7 @@ export function OrganizationStructuredData() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(structuredData) }}
     />
   )
 }
@@ -114,7 +124,7 @@ export function WebSiteStructuredData() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(structuredData) }}
     />
   )
 }

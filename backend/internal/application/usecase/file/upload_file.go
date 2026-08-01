@@ -2,17 +2,18 @@ package file
 
 import (
 	"context"
+	"net/http"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/startup-job-board/backend/internal/application/dto"
+	"github.com/startup-job-board/backend/internal/application/port"
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
-	"github.com/startup-job-board/backend/internal/application/port"
 	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/logger"
-	"path/filepath"
-	"strings"
 )
 
 const (
@@ -21,10 +22,17 @@ const (
 
 var allowedMimeTypes = map[string]bool{
 	"image/jpeg": true,
-	"image/jpg":  true,
 	"image/png":  true,
 	"image/gif":  true,
 	"image/webp": true,
+}
+
+var extensionMimeFallback = map[string]string{
+	".jpg":  "image/jpeg",
+	".jpeg": "image/jpeg",
+	".png":  "image/png",
+	".gif":  "image/gif",
+	".webp": "image/webp",
 }
 
 type UploadFileUseCase struct {
@@ -46,37 +54,32 @@ func NewUploadFileUseCase(
 }
 
 func (uc *UploadFileUseCase) Execute(ctx context.Context, fileData []byte, fileName string, mimeType string, userID string) (*dto.FileOutput, error) {
-	// Check if storage service is available
 	if uc.storageService == nil {
 		return nil, errors.NewBadRequestError("file storage is not configured")
 	}
 
-	// Validate file size
 	if len(fileData) > MaxFileSize {
 		return nil, errors.NewBadRequestError("file size exceeds 2MB limit")
 	}
 
-	// Validate MIME type
-	if !allowedMimeTypes[strings.ToLower(mimeType)] {
-		return nil, errors.NewBadRequestError("only image files are allowed (JPEG, PNG, GIF, WebP)")
-	}
-
-	// Generate storage key
-	ext := filepath.Ext(fileName)
-	storageKey := "uploads/" + uuid.New().String() + ext
-
-	// Upload to storage
-	url, err := uc.storageService.Upload(ctx, fileData, storageKey, mimeType)
+	resolvedMime, err := resolveImageMimeType(fileData, fileName, mimeType)
 	if err != nil {
 		return nil, err
 	}
 
-	// Create file record
+	ext := filepath.Ext(fileName)
+	storageKey := "uploads/" + uuid.New().String() + ext
+
+	url, err := uc.storageService.Upload(ctx, fileData, storageKey, resolvedMime)
+	if err != nil {
+		return nil, err
+	}
+
 	file := &entity.File{
 		ID:         uuid.New().String(),
 		FileName:   fileName,
 		FileSize:   int64(len(fileData)),
-		MimeType:   mimeType,
+		MimeType:   resolvedMime,
 		StorageKey: storageKey,
 		URL:        url,
 		UploadedBy: userID,
@@ -84,7 +87,6 @@ func (uc *UploadFileUseCase) Execute(ctx context.Context, fileData []byte, fileN
 	}
 
 	if err := uc.fileRepo.Create(ctx, file); err != nil {
-		// Try to delete from storage if DB insert fails
 		if uc.storageService != nil {
 			uc.storageService.Delete(ctx, storageKey)
 		}
@@ -101,3 +103,27 @@ func (uc *UploadFileUseCase) Execute(ctx context.Context, fileData []byte, fileN
 	}, nil
 }
 
+func resolveImageMimeType(fileData []byte, fileName, clientMime string) (string, error) {
+	clientMime = strings.ToLower(strings.TrimSpace(clientMime))
+	if strings.Contains(clientMime, "svg") {
+		return "", errors.NewBadRequestError("only image files are allowed (JPEG, PNG, GIF, WebP)")
+	}
+
+	detected := http.DetectContentType(fileData)
+	if strings.HasPrefix(detected, "image/svg") {
+		return "", errors.NewBadRequestError("only image files are allowed (JPEG, PNG, GIF, WebP)")
+	}
+
+	if allowedMimeTypes[detected] {
+		return detected, nil
+	}
+
+	if detected == "application/octet-stream" {
+		ext := strings.ToLower(filepath.Ext(fileName))
+		if fallback, ok := extensionMimeFallback[ext]; ok {
+			return fallback, nil
+		}
+	}
+
+	return "", errors.NewBadRequestError("only image files are allowed (JPEG, PNG, GIF, WebP)")
+}

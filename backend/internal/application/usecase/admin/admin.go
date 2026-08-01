@@ -134,7 +134,7 @@ func (uc *CreateOrphanStartupUseCase) Execute(ctx context.Context, actorID strin
 	startup := &entity.Startup{
 		ID: uuid.New().String(), Name: input.Name, Slug: slug, Description: input.Description,
 		Website: input.Website, FoundedYear: input.FoundedYear, Industry: input.Industry,
-		CompanySize: input.CompanySize, Location: input.Location, APIToken: tokenStr,
+		CompanySize: input.CompanySize, Location: input.Location, APIToken: utils.HashToken(tokenStr),
 		AllowPublicJoin: input.AllowPublicJoin, Status: entity.StartupStatusActive,
 		TeamID: nil, Plan: string(entity.StartupPlanFree), CreatedAt: now, UpdatedAt: now,
 	}
@@ -146,6 +146,7 @@ func (uc *CreateOrphanStartupUseCase) Execute(ctx context.Context, actorID strin
 		Website: startup.Website, FoundedYear: startup.FoundedYear, Industry: startup.Industry,
 		CompanySize: startup.CompanySize, Location: startup.Location,
 		AllowPublicJoin: startup.AllowPublicJoin, Status: string(startup.Status), Plan: startup.Plan,
+		APIToken: tokenStr, // plaintext shown once
 		CreatedAt: startup.CreatedAt.Format(time.RFC3339), UpdatedAt: startup.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }

@@ -26,3 +26,20 @@ func TestClampPagination(t *testing.T) {
 		t.Fatalf("auth size: got %d", size)
 	}
 }
+
+func TestSanitizeOrder(t *testing.T) {
+	col, dir := SanitizeOrder("title; drop table", "asc", JobOrderColumns, "created_at")
+	if col != "created_at" || dir != "ASC" {
+		t.Fatalf("reject inject: col=%s dir=%s", col, dir)
+	}
+	col, dir = SanitizeOrder("title", "ASC", JobOrderColumns, "created_at")
+	if col != "title" || dir != "ASC" {
+		t.Fatalf("allow: col=%s dir=%s", col, dir)
+	}
+	if !IsHTTPURL("https://example.com/apply") {
+		t.Fatal("https should pass")
+	}
+	if IsHTTPURL("javascript:alert(1)") {
+		t.Fatal("javascript: must fail")
+	}
+}

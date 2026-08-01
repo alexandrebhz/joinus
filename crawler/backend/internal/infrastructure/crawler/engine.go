@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/startup-job-board/crawler/internal/domain/entity"
 	"github.com/startup-job-board/crawler/internal/domain/repository"
+	"github.com/startup-job-board/crawler/internal/pkg/ssrf"
 )
 
 // Engine handles the crawling process
@@ -46,6 +47,10 @@ func (e *Engine) Crawl(ctx context.Context, site *entity.CrawlSite) (*CrawlResul
 
 	extractor := NewExtractor(site.ExtractionRules)
 	paginator := NewPaginator(site.PaginationConfig)
+
+	if err := ssrf.ValidatePublicHTTPURL(site.BaseURL); err != nil {
+		return nil, fmt.Errorf("invalid base URL: %w", err)
+	}
 
 	// Get page URLs to crawl
 	pageURLs, err := paginator.GetPageURLs(site.BaseURL)
@@ -91,7 +96,11 @@ func (e *Engine) Crawl(ctx context.Context, site *entity.CrawlSite) (*CrawlResul
 		if paginator.HasNextPage(doc) {
 			nextURL, err := paginator.GetNextPageURL(doc, pageURL)
 			if err == nil && nextURL != "" {
-				pageURLs = append(pageURLs, nextURL)
+				if err := ssrf.ValidatePublicHTTPURL(nextURL); err != nil {
+					result.Errors = append(result.Errors, fmt.Sprintf("blocked next page URL %s: %v", nextURL, err))
+				} else {
+					pageURLs = append(pageURLs, nextURL)
+				}
 			}
 		}
 	}
@@ -101,6 +110,10 @@ func (e *Engine) Crawl(ctx context.Context, site *entity.CrawlSite) (*CrawlResul
 
 // fetchPage fetches a page and returns a goquery document
 func (e *Engine) fetchPage(ctx context.Context, url string, userAgent string) (*goquery.Document, error) {
+	if err := ssrf.ValidatePublicHTTPURL(url); err != nil {
+		return nil, fmt.Errorf("blocked URL: %w", err)
+	}
+
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err

@@ -11,6 +11,8 @@ export interface IApiClient {
   register(data: RegisterRequest): Promise<ApiResponse<AuthResponse>>
   login(data: LoginRequest): Promise<ApiResponse<AuthResponse>>
   refreshToken(refreshToken: string): Promise<ApiResponse<{ access_token: string }>>
+  logout(): Promise<void>
+  exchangeOAuthCode(code: string): Promise<ApiResponse<AuthResponse>>
   getCurrentUser(): Promise<ApiResponse<User>>
 
   // Jobs

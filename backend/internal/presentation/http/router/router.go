@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/startup-job-board/backend/internal/application/port"
 	"github.com/startup-job-board/backend/internal/domain/repository"
+	"github.com/startup-job-board/backend/internal/domain/service"
 	"github.com/startup-job-board/backend/internal/infrastructure/config"
 	"github.com/startup-job-board/backend/internal/presentation/http/handler"
 	"github.com/startup-job-board/backend/internal/presentation/http/middleware"
@@ -19,15 +20,25 @@ type RouterDeps struct {
 	TeamHandler    *handler.TeamHandler
 	AdminHandler   *handler.AdminHandler
 	JWTService     port.JWTService
+	AuthService    *service.AuthorizationService
 	StartupRepo    repository.StartupRepository
 	AllowedOrigins []string
 	RateLimit      config.RateLimitConfig
 	InternalKey    string
+	TrustedProxies []string
 }
 
 func NewRouter(deps RouterDeps) *gin.Engine {
 	r := gin.Default()
 
+	// When TrustedProxies is empty, Gin does not trust X-Forwarded-For / X-Real-IP.
+	if len(deps.TrustedProxies) > 0 {
+		_ = r.SetTrustedProxies(deps.TrustedProxies)
+	} else {
+		_ = r.SetTrustedProxies(nil)
+	}
+
+	r.Use(middleware.SecurityHeadersMiddleware())
 	r.Use(middleware.CORSMiddleware(deps.AllowedOrigins))
 	r.Use(middleware.LoggerMiddleware())
 	r.Use(middleware.InternalKeyMiddleware(deps.InternalKey))
@@ -67,6 +78,7 @@ func NewRouter(deps RouterDeps) *gin.Engine {
 	protected.Use(middleware.AuthMiddleware(deps.JWTService))
 	{
 		protected.GET("/me", deps.AuthHandler.GetMe)
+		protected.POST("/auth/logout", deps.AuthHandler.Logout)
 
 		protected.POST("/startups", deps.StartupHandler.Create)
 		protected.PUT("/startups/:id", deps.StartupHandler.Update)
@@ -97,7 +109,7 @@ func NewRouter(deps RouterDeps) *gin.Engine {
 
 		// Platform admin
 		admin := protected.Group("/admin")
-		admin.Use(middleware.RequirePlatformAdmin())
+		admin.Use(middleware.RequirePlatformAdmin(deps.AuthService))
 		{
 			admin.GET("/users", deps.AdminHandler.ListUsers)
 			admin.PATCH("/users/:id", deps.AdminHandler.UpdateUser)

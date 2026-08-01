@@ -10,8 +10,9 @@ RUN npm ci --legacy-peer-deps
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Accept build argument for NEXT_PUBLIC_CRAWLER_API_URL
+# Accept build arguments for Next.js public env vars
 ARG NEXT_PUBLIC_CRAWLER_API_URL=http://crawler-api:8081
+ARG NEXT_PUBLIC_CRAWLER_API_TOKEN=
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
@@ -19,8 +20,8 @@ COPY . .
 
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
-# Set NEXT_PUBLIC_CRAWLER_API_URL as environment variable for build time
 ENV NEXT_PUBLIC_CRAWLER_API_URL=${NEXT_PUBLIC_CRAWLER_API_URL}
+ENV NEXT_PUBLIC_CRAWLER_API_TOKEN=${NEXT_PUBLIC_CRAWLER_API_TOKEN}
 
 # Build the application
 RUN npm run build

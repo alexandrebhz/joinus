@@ -103,7 +103,7 @@ func (uc *InviteMemberUseCase) Execute(ctx context.Context, input dto.InviteMemb
 		ID:        invitation.ID,
 		Email:     invitation.Email,
 		Role:      string(invitation.Role),
-		Token:     invitation.Token,
+		Token:     "",
 		ExpiresAt: invitation.ExpiresAt,
 		InviteURL: inviteURL,
 	}, nil

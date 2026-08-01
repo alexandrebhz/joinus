@@ -62,7 +62,7 @@ func (uc *RegisterUseCase) Execute(ctx context.Context, input dto.RegisterInput)
 	if err != nil {
 		return nil, err
 	}
-	refresh, err := uc.jwtService.GenerateRefreshToken(user.ID)
+	refresh, err := uc.jwtService.GenerateRefreshToken(user.ID, user.TokenVersion)
 	if err != nil {
 		return nil, err
 	}

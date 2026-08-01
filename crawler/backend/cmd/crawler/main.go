@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -24,6 +25,14 @@ func main() {
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
+	}
+
+	env := strings.ToLower(cfg.Environment)
+	if (env == "production" || env == "prod") && cfg.CrawlerAPIToken == "" {
+		log.Fatal("CRAWLER_API_TOKEN must be set in production")
+	}
+	if cfg.CrawlerAPIToken == "" {
+		log.Println("WARNING: CRAWLER_API_TOKEN is not set; API endpoints are unauthenticated")
 	}
 
 	// Initialize database
@@ -68,7 +77,7 @@ func main() {
 	crawlLogHandler := handler.NewCrawlLogHandler(getLogsUseCase, getLatestLogUseCase)
 
 	// Setup router
-	r := router.SetupRouter(siteHandler, crawlHandler, crawlLogHandler)
+	r := router.SetupRouter(siteHandler, crawlHandler, crawlLogHandler, cfg.CrawlerAPIToken)
 
 	// Start scheduler
 	ctx := context.Background()

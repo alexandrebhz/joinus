@@ -11,8 +11,9 @@ type User struct {
 	Name      string    `gorm:"type:varchar(255);not null"`
 	Role      string    `gorm:"type:varchar(50);not null;default:'candidate'"`
 	StartupID *string   `gorm:"type:uuid"`
-	Status    string    `gorm:"type:varchar(50);not null;default:'active'"`
-	CreatedAt time.Time
+	Status       string    `gorm:"type:varchar(50);not null;default:'active'"`
+	TokenVersion int       `gorm:"not null;default:0"`
+	CreatedAt    time.Time
 	UpdatedAt time.Time
 }
 

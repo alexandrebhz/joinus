@@ -2,7 +2,7 @@ package dto
 
 type RegisterInput struct {
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8"`
+	Password string `json:"password" validate:"required,min=12"` // minimum 12 characters
 	Name     string `json:"name" validate:"required,min=2"`
 }
 

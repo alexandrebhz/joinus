@@ -13,6 +13,7 @@ import (
 	"github.com/startup-job-board/backend/internal/presentation/http/middleware"
 	"github.com/startup-job-board/backend/internal/presentation/http/response"
 	"github.com/startup-job-board/backend/internal/presentation/http/validator"
+	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/utils"
 )
 
@@ -59,7 +60,8 @@ func (h *JobHandler) Create(c *gin.Context) {
 	}
 
 	userID := middleware.GetUserID(c)
-	result, err := h.createUseCase.Execute(c.Request.Context(), input, userID)
+	apiStartupID := middleware.GetStartupID(c)
+	result, err := h.createUseCase.Execute(c.Request.Context(), input, userID, apiStartupID)
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, err)
 		return
@@ -83,7 +85,8 @@ func (h *JobHandler) Update(c *gin.Context) {
 	}
 
 	userID := middleware.GetUserID(c)
-	result, err := h.updateUseCase.Execute(c.Request.Context(), input, userID)
+	apiStartupID := middleware.GetStartupID(c)
+	result, err := h.updateUseCase.Execute(c.Request.Context(), input, userID, apiStartupID)
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, err)
 		return
@@ -179,6 +182,13 @@ func (h *JobHandler) Get(c *gin.Context) {
 		return
 	}
 
+	authenticated := middleware.GetUserID(c) != ""
+	trusted := middleware.IsInternalTrusted(c)
+	if !authenticated && !trusted && job.Status != entity.JobStatusActive {
+		response.Error(c, http.StatusNotFound, errors.NewNotFoundError("job"))
+		return
+	}
+
 	// Get startup name and slug
 	startup, _ := h.startupRepo.FindByID(c.Request.Context(), job.StartupID)
 	startupName := ""
@@ -227,8 +237,9 @@ func (h *JobHandler) Get(c *gin.Context) {
 func (h *JobHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	userID := middleware.GetUserID(c)
+	apiStartupID := middleware.GetStartupID(c)
 
-	if err := h.deleteUseCase.Execute(c.Request.Context(), id, userID); err != nil {
+	if err := h.deleteUseCase.Execute(c.Request.Context(), id, userID, apiStartupID); err != nil {
 		response.Error(c, http.StatusBadRequest, err)
 		return
 	}

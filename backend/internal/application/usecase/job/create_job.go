@@ -11,6 +11,7 @@ import (
 	"github.com/startup-job-board/backend/internal/domain/service"
 	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/logger"
+	"github.com/startup-job-board/backend/pkg/utils"
 )
 
 type CreateJobUseCase struct {
@@ -37,17 +38,28 @@ func NewCreateJobUseCase(
 	}
 }
 
-func (uc *CreateJobUseCase) Execute(ctx context.Context, input dto.CreateJobInput, userID string) (*dto.JobOutput, error) {
+func (uc *CreateJobUseCase) Execute(ctx context.Context, input dto.CreateJobInput, userID string, apiTokenStartupID string) (*dto.JobOutput, error) {
+	if apiTokenStartupID != "" {
+		input.StartupID = apiTokenStartupID
+	}
+
 	// Verify startup exists
 	startup, err := uc.startupRepo.FindByID(ctx, input.StartupID)
 	if err != nil {
 		return nil, errors.NewNotFoundError("startup")
 	}
 
-	// Check permission
-	canManage, err := uc.authService.CanManageJobs(ctx, userID, input.StartupID)
-	if err != nil || !canManage {
-		return nil, errors.NewForbiddenError("you don't have permission to create jobs for this startup")
+	if apiTokenStartupID == "" {
+		canManage, err := uc.authService.CanManageJobs(ctx, userID, input.StartupID)
+		if err != nil || !canManage {
+			return nil, errors.NewForbiddenError("you don't have permission to create jobs for this startup")
+		}
+	}
+
+	if input.ApplicationURL != nil && *input.ApplicationURL != "" {
+		if !utils.IsHTTPURL(*input.ApplicationURL) {
+			return nil, errors.NewBadRequestError("application_url must be a valid http or https URL")
+		}
 	}
 
 	// Parse expires_at if provided

@@ -27,16 +27,21 @@ func NewDeleteJobUseCase(
 	}
 }
 
-func (uc *DeleteJobUseCase) Execute(ctx context.Context, jobID string, userID string) error {
+func (uc *DeleteJobUseCase) Execute(ctx context.Context, jobID string, userID string, apiTokenStartupID string) error {
 	job, err := uc.jobRepo.FindByID(ctx, jobID)
 	if err != nil {
 		return errors.NewNotFoundError("job")
 	}
 
-	// Check permission
-	canManage, err := uc.authService.CanManageJobs(ctx, userID, job.StartupID)
-	if err != nil || !canManage {
-		return errors.NewForbiddenError("you don't have permission to delete this job")
+	if apiTokenStartupID != "" {
+		if job.StartupID != apiTokenStartupID {
+			return errors.NewForbiddenError("you don't have permission to delete this job")
+		}
+	} else {
+		canManage, err := uc.authService.CanManageJobs(ctx, userID, job.StartupID)
+		if err != nil || !canManage {
+			return errors.NewForbiddenError("you don't have permission to delete this job")
+		}
 	}
 
 	return uc.jobRepo.Delete(ctx, jobID)

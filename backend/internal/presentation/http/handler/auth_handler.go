@@ -18,6 +18,7 @@ type AuthHandler struct {
 	registerUseCase          *authusecase.RegisterUseCase
 	loginUseCase             *authusecase.LoginUseCase
 	refreshTokenUseCase      *authusecase.RefreshTokenUseCase
+	logoutUseCase            *authusecase.LogoutUseCase
 	getMeUseCase             *authusecase.GetMeUseCase
 	startOAuthUseCase        *authusecase.StartOAuthUseCase
 	completeOAuthUseCase     *authusecase.CompleteOAuthUseCase
@@ -32,6 +33,7 @@ func NewAuthHandler(
 	registerUseCase *authusecase.RegisterUseCase,
 	loginUseCase *authusecase.LoginUseCase,
 	refreshTokenUseCase *authusecase.RefreshTokenUseCase,
+	logoutUseCase *authusecase.LogoutUseCase,
 	getMeUseCase *authusecase.GetMeUseCase,
 	startOAuthUseCase *authusecase.StartOAuthUseCase,
 	completeOAuthUseCase *authusecase.CompleteOAuthUseCase,
@@ -43,7 +45,7 @@ func NewAuthHandler(
 ) *AuthHandler {
 	return &AuthHandler{
 		registerUseCase: registerUseCase, loginUseCase: loginUseCase,
-		refreshTokenUseCase: refreshTokenUseCase, getMeUseCase: getMeUseCase,
+		refreshTokenUseCase: refreshTokenUseCase, logoutUseCase: logoutUseCase, getMeUseCase: getMeUseCase,
 		startOAuthUseCase: startOAuthUseCase, completeOAuthUseCase: completeOAuthUseCase,
 		issueLoginCodeUseCase: issueLoginCodeUseCase, exchangeLoginCodeUseCase: exchangeLoginCodeUseCase,
 		frontendURL: frontendURL, secureCookies: secureCookies, validator: validator,
@@ -102,6 +104,14 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 	response.Success(c, result)
+}
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	if err := h.logoutUseCase.Execute(c.Request.Context(), middleware.GetUserID(c)); err != nil {
+		response.Error(c, http.StatusUnauthorized, err)
+		return
+	}
+	response.Success(c, gin.H{"message": "logged out successfully"})
 }
 
 func (h *AuthHandler) GetMe(c *gin.Context) {

@@ -8,6 +8,7 @@ import (
 	"github.com/startup-job-board/crawler/internal/application/dto"
 	"github.com/startup-job-board/crawler/internal/domain/entity"
 	"github.com/startup-job-board/crawler/internal/domain/repository"
+	"github.com/startup-job-board/crawler/internal/pkg/ssrf"
 )
 
 // UpdateSiteUseCase handles updating a crawl site
@@ -34,6 +35,9 @@ func (uc *UpdateSiteUseCase) Execute(ctx context.Context, id string, input dto.U
 		site.Name = *input.Name
 	}
 	if input.BaseURL != nil {
+		if err := ssrf.ValidatePublicHTTPURL(*input.BaseURL); err != nil {
+			return nil, err
+		}
 		site.BaseURL = *input.BaseURL
 	}
 	if input.BackendStartupID != nil {

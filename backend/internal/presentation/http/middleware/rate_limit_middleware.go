@@ -148,7 +148,7 @@ func RateLimitMiddleware(cfg RateLimitSettings) gin.HandlerFunc {
 			bucket = "detail"
 		}
 
-		ip := clientIP(c)
+		ip := c.ClientIP()
 		key := bucket + ":" + ip
 		allowed, retryAfter := store.allow(key, limit)
 		if !allowed {
@@ -173,18 +173,3 @@ func isPublicDetailPath(path string) bool {
 		strings.HasPrefix(path, "/api/v1/startups/slug/")
 }
 
-func clientIP(c *gin.Context) string {
-	if xff := c.GetHeader("X-Forwarded-For"); xff != "" {
-		parts := strings.Split(xff, ",")
-		if len(parts) > 0 {
-			ip := strings.TrimSpace(parts[0])
-			if ip != "" {
-				return ip
-			}
-		}
-	}
-	if xri := strings.TrimSpace(c.GetHeader("X-Real-IP")); xri != "" {
-		return xri
-	}
-	return c.ClientIP()
-}

@@ -91,7 +91,7 @@ func (uc *CreateStartupUseCase) Execute(ctx context.Context, input dto.CreateSta
 	startup := &entity.Startup{
 		ID: uuid.New().String(), Name: input.Name, Slug: slug, Description: input.Description,
 		Website: input.Website, FoundedYear: input.FoundedYear, Industry: input.Industry,
-		CompanySize: input.CompanySize, Location: input.Location, APIToken: tokenStr,
+		CompanySize: input.CompanySize, Location: input.Location, APIToken: utils.HashToken(tokenStr),
 		AllowPublicJoin: input.AllowPublicJoin, Status: entity.StartupStatusActive,
 		TeamID: &teamID, Plan: string(entity.StartupPlanFree), CreatedAt: now, UpdatedAt: now,
 	}
@@ -114,7 +114,9 @@ func (uc *CreateStartupUseCase) Execute(ctx context.Context, input dto.CreateSta
 		}
 	}
 
-	return uc.toOutput(startup), nil
+	out := uc.toOutput(startup)
+	out.APIToken = tokenStr // plaintext shown once
+	return out, nil
 }
 
 func (uc *CreateStartupUseCase) toOutput(startup *entity.Startup) *dto.StartupOutput {
