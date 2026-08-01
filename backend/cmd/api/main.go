@@ -149,10 +149,21 @@ func main() {
 	)
 	adminHandler := handler.NewAdminHandler(adminListUsersUC, adminUpdateUserUC, adminListTeamsUC, adminCreateStartupUC, adminLinkTeamUC, v)
 
-	r := router.NewRouter(
-		authHandler, startupHandler, jobHandler, fileHandler, contactHandler, billingHandler,
-		teamHandler, adminHandler, jwtService, startupRepo, cfg.CORS.AllowedOrigins,
-	)
+	r := router.NewRouter(router.RouterDeps{
+		AuthHandler:    authHandler,
+		StartupHandler: startupHandler,
+		JobHandler:     jobHandler,
+		FileHandler:    fileHandler,
+		ContactHandler: contactHandler,
+		BillingHandler: billingHandler,
+		TeamHandler:    teamHandler,
+		AdminHandler:   adminHandler,
+		JWTService:     jwtService,
+		StartupRepo:    startupRepo,
+		AllowedOrigins: cfg.CORS.AllowedOrigins,
+		RateLimit:      cfg.RateLimit,
+		InternalKey:    cfg.InternalKey,
+	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: r}
 

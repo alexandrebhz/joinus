@@ -8,7 +8,7 @@ const baseUrl = getSiteUrl()
 
 /** Avoid runaway loops if the API omits pagination meta. */
 const MAX_SITEMAP_PAGES = 500
-const SITEMAP_PAGE_SIZE = 100
+const SITEMAP_PAGE_SIZE = 50
 /** Listing page size used by /jobs and /startups UI (for pagination URLs). */
 const LISTING_PAGE_SIZE = 12
 

@@ -42,6 +42,3 @@ func GetStartupID(c *gin.Context) string {
 	}
 	return startupID.(string)
 }
-
-
-

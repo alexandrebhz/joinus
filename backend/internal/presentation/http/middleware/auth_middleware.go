@@ -56,6 +56,3 @@ func GetUserRole(c *gin.Context) string {
 	}
 	return role.(string)
 }
-
-
-

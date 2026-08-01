@@ -8,7 +8,10 @@ import (
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
 	"github.com/startup-job-board/backend/pkg/logger"
+	"github.com/startup-job-board/backend/pkg/utils"
 )
+
+const listExcerptLen = 280
 
 type ListStartupsUseCase struct {
 	startupRepo repository.StartupRepository
@@ -25,7 +28,8 @@ func NewListStartupsUseCase(
 	}
 }
 
-func (uc *ListStartupsUseCase) Execute(ctx context.Context, filter repository.StartupFilter) ([]*dto.StartupOutput, int64, error) {
+// Execute lists startups. When lean is true, descriptions are truncated.
+func (uc *ListStartupsUseCase) Execute(ctx context.Context, filter repository.StartupFilter, lean bool) ([]*dto.StartupOutput, int64, error) {
 	startups, total, err := uc.startupRepo.List(ctx, filter)
 	if err != nil {
 		return nil, 0, err
@@ -33,18 +37,23 @@ func (uc *ListStartupsUseCase) Execute(ctx context.Context, filter repository.St
 
 	outputs := make([]*dto.StartupOutput, len(startups))
 	for i, s := range startups {
-		outputs[i] = uc.toOutput(s)
+		outputs[i] = uc.toOutput(s, lean)
 	}
 
 	return outputs, total, nil
 }
 
-func (uc *ListStartupsUseCase) toOutput(startup *entity.Startup) *dto.StartupOutput {
+func (uc *ListStartupsUseCase) toOutput(startup *entity.Startup, lean bool) *dto.StartupOutput {
+	description := startup.Description
+	if lean {
+		description = utils.Excerpt(startup.Description, listExcerptLen)
+	}
+
 	output := &dto.StartupOutput{
 		ID:              startup.ID,
 		Name:            startup.Name,
 		Slug:            startup.Slug,
-		Description:     startup.Description,
+		Description:     description,
 		LogoURL:         startup.LogoURL,
 		Website:         startup.Website,
 		FoundedYear:     startup.FoundedYear,
@@ -65,6 +74,3 @@ func (uc *ListStartupsUseCase) toOutput(startup *entity.Startup) *dto.StartupOut
 
 	return output
 }
-
-
-

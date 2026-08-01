@@ -69,6 +69,10 @@ services:
       - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
       - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS:-100}
       - RATE_LIMIT_WINDOW=${RATE_LIMIT_WINDOW:-1m}
+      - RATE_LIMIT_LIST_REQUESTS=${RATE_LIMIT_LIST_REQUESTS:-30}
+      - RATE_LIMIT_DETAIL_REQUESTS=${RATE_LIMIT_DETAIL_REQUESTS:-60}
+      - RATE_LIMIT_TRUSTED_REQUESTS=${RATE_LIMIT_TRUSTED_REQUESTS:-300}
+      - API_INTERNAL_KEY=${API_INTERNAL_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,6 +91,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - API_INTERNAL_KEY=${API_INTERNAL_KEY:-}
     depends_on:
       - api
     restart: unless-stopped

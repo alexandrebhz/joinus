@@ -13,7 +13,7 @@ type Body = {
 
 async function collectEntityUrls(): Promise<string[]> {
   const urls: string[] = []
-  const pageSize = 100
+  const pageSize = 50
   const maxPages = 50
 
   for (let page = 1; page <= maxPages; page++) {

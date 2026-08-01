@@ -94,6 +94,8 @@ func (h *JobHandler) Update(c *gin.Context) {
 
 func (h *JobHandler) List(c *gin.Context) {
 	filter := repository.JobFilter{}
+	authenticated := middleware.GetUserID(c) != ""
+	trusted := middleware.IsInternalTrusted(c)
 
 	if startupID := c.Query("startup_id"); startupID != "" {
 		filter.StartupID = startupID
@@ -106,6 +108,10 @@ func (h *JobHandler) List(c *gin.Context) {
 	}
 	if status := c.Query("status"); status != "" {
 		filter.Status = entity.JobStatus(status)
+	}
+	// Unauthenticated scrapers cannot enumerate non-active jobs.
+	if !authenticated && !trusted {
+		filter.Status = entity.JobStatusActive
 	}
 	if search := c.Query("search"); search != "" {
 		filter.Search = search
@@ -132,12 +138,19 @@ func (h *JobHandler) List(c *gin.Context) {
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
+	maxPageSize := utils.MaxPageSizePublic
+	if authenticated {
+		maxPageSize = utils.MaxPageSizeAuth
+	}
+	page, pageSize = utils.ClampPagination(page, pageSize, maxPageSize)
 	filter.Page = page
 	filter.PageSize = pageSize
 	filter.OrderBy = c.DefaultQuery("order_by", "created_at")
 	filter.OrderDir = c.DefaultQuery("order_dir", "DESC")
 
-	jobs, total, err := h.listUseCase.Execute(c.Request.Context(), filter)
+	// Lean list for anonymous scrapers; SSR (trusted) and auth still get lean
+	// list payloads — full apply contacts only on detail.
+	jobs, total, err := h.listUseCase.Execute(c.Request.Context(), filter, true)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, err)
 		return
