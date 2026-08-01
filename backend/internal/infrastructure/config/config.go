@@ -19,17 +19,17 @@ type Config struct {
 	Port        string
 	GinMode     string
 
-	Database    DatabaseConfig
-	JWT         JWTConfig
-	Storage     StorageConfig
-	Email       EmailConfig
-	CORS        CORSConfig
-	RateLimit   RateLimitConfig
-	AppURL      string
-	Stripe      StripeConfig
-	OAuth       OAuthConfig
-	InternalKey     string
-	TrustedProxies  []string
+	Database       DatabaseConfig
+	JWT            JWTConfig
+	Storage        StorageConfig
+	Email          EmailConfig
+	CORS           CORSConfig
+	RateLimit      RateLimitConfig
+	AppURL         string
+	Stripe         StripeConfig
+	OAuth          OAuthConfig
+	InternalKey    string
+	TrustedProxies []string
 }
 
 type OAuthConfig struct {

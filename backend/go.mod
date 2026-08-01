@@ -21,6 +21,8 @@ require (
 
 require (
 	github.com/go-playground/validator/v10 v10.30.3
+	github.com/newrelic/go-agent/v3 v3.44.1
+	github.com/newrelic/go-agent/v3/integrations/nrgin v1.4.2
 	github.com/stripe/stripe-go/v82 v82.5.1
 )
 
@@ -83,6 +85,8 @@ require (
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260120221211-b8f7ae30c516 // indirect
+	google.golang.org/grpc v1.80.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
 )

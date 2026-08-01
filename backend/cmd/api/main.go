@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	oauthinfra "github.com/startup-job-board/backend/internal/infrastructure/auth/oauth"
 	"github.com/startup-job-board/backend/internal/infrastructure/config"
 	"github.com/startup-job-board/backend/internal/infrastructure/email"
+	"github.com/startup-job-board/backend/internal/infrastructure/monitoring"
 	"github.com/startup-job-board/backend/internal/infrastructure/payment"
 	"github.com/startup-job-board/backend/internal/infrastructure/persistence/gorm_model"
 	"github.com/startup-job-board/backend/internal/infrastructure/persistence/postgres"
@@ -41,6 +43,18 @@ func main() {
 	}
 
 	logger := logger.NewLogger()
+
+	// config.Load() already loaded .env; New Relic reads NEW_RELIC_* from the environment.
+	nrApp, err := monitoring.NewApplication()
+	if err != nil {
+		log.Fatalf("Failed to initialize New Relic: %v", err)
+	}
+	defer monitoring.Shutdown(nrApp)
+	if nrApp != nil {
+		logger.Info("New Relic APM enabled (%s)", os.Getenv("NEW_RELIC_APP_NAME"))
+	} else if enabled, _ := strconv.ParseBool(os.Getenv("NEW_RELIC_ENABLED")); enabled {
+		logger.Warn("New Relic enabled but NEW_RELIC_LICENSE_KEY is empty; skipping APM")
+	}
 
 	db, err := config.NewDatabase(cfg.Database)
 	if err != nil {
@@ -166,6 +180,7 @@ func main() {
 		RateLimit:      cfg.RateLimit,
 		InternalKey:    cfg.InternalKey,
 		TrustedProxies: cfg.TrustedProxies,
+		NewRelicApp:    nrApp,
 	})
 
 	srv := &http.Server{Addr: ":" + cfg.Port, Handler: r}

@@ -124,3 +124,16 @@ Frontend (Next.js server runtime only):
 API_INTERNAL_KEY=<same-long-random-secret>
 ```
 
+## New Relic APM
+
+HTTP transactions are instrumented with `nrgin` + `ConfigFromEnvironment()`.
+`config.Load()` loads `.env`, then the agent reads standard `NEW_RELIC_*` vars.
+
+```bash
+NEW_RELIC_ENABLED=true
+NEW_RELIC_APP_NAME=joinus-backend
+NEW_RELIC_LICENSE_KEY=<your-ingest-license-key>
+```
+
+Without a license key (or with `NEW_RELIC_ENABLED=false`), the API starts normally and skips APM.
+
