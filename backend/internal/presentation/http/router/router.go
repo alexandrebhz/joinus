@@ -37,6 +37,7 @@ func NewRouter(
 		public.POST("/auth/refresh", authHandler.RefreshToken)
 		public.GET("/auth/oauth/:provider", authHandler.OAuthStart)
 		public.GET("/auth/oauth/:provider/callback", authHandler.OAuthCallback)
+		public.POST("/auth/oauth/exchange", authHandler.ExchangeOAuthCode)
 
 		public.GET("/startups", startupHandler.List)
 		public.GET("/startups/slug/:slug", startupHandler.GetBySlug)

@@ -1,15 +1,19 @@
 'use client'
 
 import { Button } from '@/presentation/components/ui/button'
-import { getGoogleOAuthUrl } from '@/infrastructure/auth/oauth'
 
 interface GoogleSignInButtonProps {
   label?: string
 }
 
+/**
+ * Starts OAuth via a same-origin frontend route (/auth/google).
+ * That page redirects to the backend, which talks to Google.
+ * Do not call OAuth with fetch/axios — the browser must follow redirects.
+ */
 export function GoogleSignInButton({ label = 'Continue with Google' }: GoogleSignInButtonProps) {
   const handleClick = () => {
-    window.location.href = getGoogleOAuthUrl()
+    window.location.href = '/auth/google'
   }
 
   return (

@@ -60,6 +60,7 @@ func main() {
 	roleRepo := postgres.NewRoleRepository(db)
 	teamInvitationRepo := postgres.NewTeamInvitationRepository(db)
 	oauthAccountRepo := postgres.NewOAuthAccountRepository(db)
+	oauthLoginCodeRepo := postgres.NewOAuthLoginCodeRepository(db)
 	fileRepo := postgres.NewFileRepository(db)
 	contactRepo := postgres.NewContactRepository(db)
 
@@ -91,6 +92,8 @@ func main() {
 	getMeUC := authusecase.NewGetMeUseCase(userRepo, teamRepo, teamMemberRepo, roleRepo, logger)
 	startOAuthUC := authusecase.NewStartOAuthUseCase(oauthRegistry)
 	completeOAuthUC := authusecase.NewCompleteOAuthUseCase(oauthRegistry, userRepo, oauthAccountRepo, jwtService, logger)
+	issueLoginCodeUC := authusecase.NewIssueOAuthLoginCodeUseCase(oauthLoginCodeRepo)
+	exchangeLoginCodeUC := authusecase.NewExchangeOAuthLoginCodeUseCase(oauthLoginCodeRepo)
 
 	createStartupUC := startupusecase.NewCreateStartupUseCase(startupRepo, teamRepo, teamMemberRepo, roleRepo, memberRepo, userRepo, tokenGen, logger)
 	updateStartupUC := startupusecase.NewUpdateStartupUseCase(startupRepo, authService, logger)
@@ -128,7 +131,12 @@ func main() {
 	adminLinkTeamUC := adminusecase.NewLinkStartupTeamUseCase(startupRepo, teamRepo, authService)
 
 	v := validator.NewValidator()
-	authHandler := handler.NewAuthHandler(registerUC, loginUC, refreshTokenUC, getMeUC, startOAuthUC, completeOAuthUC, cfg.AppURL, v)
+	secureCookies := cfg.Environment == "production" || cfg.Environment == "prod"
+	authHandler := handler.NewAuthHandler(
+		registerUC, loginUC, refreshTokenUC, getMeUC,
+		startOAuthUC, completeOAuthUC, issueLoginCodeUC, exchangeLoginCodeUC,
+		cfg.AppURL, secureCookies, v,
+	)
 	startupHandler := handler.NewStartupHandler(createStartupUC, updateStartupUC, getStartupUC, listStartupsUC, v)
 	jobHandler := handler.NewJobHandler(createJobUC, updateJobUC, listJobsUC, deleteJobUC, jobRepo, startupRepo, v)
 	fileHandler := handler.NewFileHandler(uploadFileUC)
@@ -188,5 +196,6 @@ func autoMigrate(db *gorm.DB) error {
 		&gorm_model.RoleScope{},
 		&gorm_model.TeamInvitation{},
 		&gorm_model.OAuthAccount{},
+		&gorm_model.OAuthLoginCode{},
 	)
 }
