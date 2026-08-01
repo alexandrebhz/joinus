@@ -2,6 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	nrgin "github.com/newrelic/go-agent/v3/integrations/nrgin"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/startup-job-board/backend/internal/application/port"
 	"github.com/startup-job-board/backend/internal/domain/repository"
 	"github.com/startup-job-board/backend/internal/domain/service"
@@ -26,6 +28,7 @@ type RouterDeps struct {
 	RateLimit      config.RateLimitConfig
 	InternalKey    string
 	TrustedProxies []string
+	NewRelicApp    *newrelic.Application
 }
 
 func NewRouter(deps RouterDeps) *gin.Engine {
@@ -38,6 +41,9 @@ func NewRouter(deps RouterDeps) *gin.Engine {
 		_ = r.SetTrustedProxies(nil)
 	}
 
+	if deps.NewRelicApp != nil {
+		r.Use(nrgin.Middleware(deps.NewRelicApp))
+	}
 	r.Use(middleware.SecurityHeadersMiddleware())
 	r.Use(middleware.CORSMiddleware(deps.AllowedOrigins))
 	r.Use(middleware.LoggerMiddleware())
