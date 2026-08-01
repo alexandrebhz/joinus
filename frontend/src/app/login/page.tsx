@@ -13,6 +13,7 @@ import { Input } from '@/presentation/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/presentation/components/ui/card'
 import { apiClient } from '@/infrastructure/api/api-client'
 import { useAuthStore } from '@/infrastructure/store/auth.store'
+import { AuthDivider, GoogleSignInButton } from '@/presentation/components/auth/google-sign-in-button'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -93,6 +94,8 @@ export default function LoginPage() {
               <Button type="submit" className="w-full" isLoading={isLoading}>
                 Sign In
               </Button>
+              <AuthDivider />
+              <GoogleSignInButton label="Continue with Google" />
               <p className="text-sm text-center text-secondary-600">
                 Don't have an account?{' '}
                 <Link href="/register" className="text-primary-600 hover:text-primary-700 font-medium">

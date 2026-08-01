@@ -13,6 +13,7 @@ import { Input } from '@/presentation/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/presentation/components/ui/card'
 import { apiClient } from '@/infrastructure/api/api-client'
 import { useAuthStore } from '@/infrastructure/store/auth.store'
+import { AuthDivider, GoogleSignInButton } from '@/presentation/components/auth/google-sign-in-button'
 
 const registerSchema = z
   .object({
@@ -117,6 +118,8 @@ export default function RegisterPage() {
               <Button type="submit" className="w-full" isLoading={isLoading}>
                 Create Account
               </Button>
+              <AuthDivider />
+              <GoogleSignInButton label="Sign up with Google" />
               <p className="text-sm text-center text-secondary-600">
                 Already have an account?{' '}
                 <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
