@@ -18,10 +18,21 @@ type Startup struct {
 	AllowPublicJoin bool
 	JoinCode        *string
 	Status          StartupStatus
+	Plan                 string
+	PlanExpiresAt        *time.Time
+	StripeCustomerID     *string
+	StripeSubscriptionID *string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time
 }
+
+type StartupPlan string
+
+const (
+	StartupPlanFree StartupPlan = "free"
+	StartupPlanPro  StartupPlan = "pro"
+)
 
 type SocialLinks struct {
 	LinkedIn string

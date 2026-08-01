@@ -21,6 +21,7 @@ type Job struct {
 	ApplicationEmail *string   `gorm:"type:varchar(255)"`
 	Status          string     `gorm:"type:varchar(50);not null;default:'active'"`
 	ExpiresAt       *time.Time `gorm:"type:timestamp"`
+	BoostedUntil    *time.Time `gorm:"type:timestamp;index"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }

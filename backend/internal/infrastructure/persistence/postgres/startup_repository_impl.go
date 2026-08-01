@@ -57,6 +57,14 @@ func (r *StartupRepositoryImpl) FindByAPIToken(ctx context.Context, token string
 	return r.toDomain(&model), nil
 }
 
+func (r *StartupRepositoryImpl) FindByStripeSubscriptionID(ctx context.Context, subscriptionID string) (*entity.Startup, error) {
+	var model gorm_model.Startup
+	if err := r.db.WithContext(ctx).Where("stripe_subscription_id = ?", subscriptionID).First(&model).Error; err != nil {
+		return nil, err
+	}
+	return r.toDomain(&model), nil
+}
+
 func (r *StartupRepositoryImpl) List(ctx context.Context, filter repository.StartupFilter) ([]*entity.Startup, int64, error) {
 	query := r.db.WithContext(ctx).Model(&gorm_model.Startup{})
 
@@ -133,12 +141,20 @@ func (r *StartupRepositoryImpl) toModel(startup *entity.Startup) *gorm_model.Sta
 		AllowPublicJoin: startup.AllowPublicJoin,
 		JoinCode:        startup.JoinCode,
 		Status:          string(startup.Status),
+		Plan:                 startup.Plan,
+		PlanExpiresAt:        startup.PlanExpiresAt,
+		StripeCustomerID:     startup.StripeCustomerID,
+		StripeSubscriptionID: startup.StripeSubscriptionID,
 		CreatedAt:       startup.CreatedAt,
 		UpdatedAt:       startup.UpdatedAt,
 	}
 }
 
 func (r *StartupRepositoryImpl) toDomain(model *gorm_model.Startup) *entity.Startup {
+	plan := model.Plan
+	if plan == "" {
+		plan = string(entity.StartupPlanFree)
+	}
 	return &entity.Startup{
 		ID:              model.ID,
 		Name:            model.Name,
@@ -159,6 +175,10 @@ func (r *StartupRepositoryImpl) toDomain(model *gorm_model.Startup) *entity.Star
 		AllowPublicJoin: model.AllowPublicJoin,
 		JoinCode:        model.JoinCode,
 		Status:          entity.StartupStatus(model.Status),
+		Plan:                 plan,
+		PlanExpiresAt:        model.PlanExpiresAt,
+		StripeCustomerID:     model.StripeCustomerID,
+		StripeSubscriptionID: model.StripeSubscriptionID,
 		CreatedAt:       model.CreatedAt,
 		UpdatedAt:       model.UpdatedAt,
 	}

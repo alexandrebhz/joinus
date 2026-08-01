@@ -19,6 +19,7 @@ type Job struct {
 	ApplicationEmail *string
 	Status          JobStatus
 	ExpiresAt       *time.Time
+	BoostedUntil    *time.Time
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }

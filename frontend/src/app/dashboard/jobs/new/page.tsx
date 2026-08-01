@@ -109,10 +109,10 @@ export default function CreateJobPage() {
         expires_at: formData.expires_at || undefined,
       }
 
-      await apiClient.createJob(submitData)
-      
-      // Redirect to dashboard or jobs list
-      router.push('/dashboard')
+      const created = await apiClient.createJob(submitData)
+
+      // Offer to boost the newly created job for more visibility
+      router.push(`/dashboard/billing?boost_job_id=${created.data.id}`)
     } catch (err: any) {
       setError(err.message || 'Failed to create job')
     } finally {

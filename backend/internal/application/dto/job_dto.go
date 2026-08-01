@@ -54,6 +54,7 @@ type JobOutput struct {
 	ApplicationEmail *string `json:"application_email"`
 	Status           string  `json:"status"`
 	ExpiresAt        *string `json:"expires_at"`
+	BoostedUntil     *string `json:"boosted_until"`
 	CreatedAt        string  `json:"created_at"`
 	UpdatedAt        string  `json:"updated_at"`
 }

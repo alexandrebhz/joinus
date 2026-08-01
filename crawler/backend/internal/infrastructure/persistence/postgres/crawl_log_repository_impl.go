@@ -78,31 +78,13 @@ func (r *CrawlLogRepositoryImpl) toModel(log *entity.CrawlLog) *gorm_model.Crawl
 		log.ID = uuid.New().String()
 	}
 
-	var errorsJSONB gorm_model.JSONB
-	var logsJSONB gorm_model.JSONB
-	
+	var errorsArr gorm_model.JSONBArray
+	var logsArr gorm_model.JSONBArray
+
 	errorsJSON, _ := json.Marshal(log.Errors)
 	logsJSON, _ := json.Marshal(log.Logs)
-	
-	var errorsInterface interface{}
-	var logsInterface interface{}
-	json.Unmarshal(errorsJSON, &errorsInterface)
-	json.Unmarshal(logsJSON, &logsInterface)
-	
-	// Convert to JSONB (map[string]interface{})
-	// Since JSONB is map[string]interface{}, we need to wrap arrays in a map or use a different approach
-	// For arrays, we'll store them as {"data": array}
-	if errorsMap, ok := errorsInterface.([]interface{}); ok {
-		errorsJSONB = gorm_model.JSONB{"data": errorsMap}
-	} else if errorsMap, ok := errorsInterface.(map[string]interface{}); ok {
-		errorsJSONB = gorm_model.JSONB(errorsMap)
-	}
-	
-	if logsMap, ok := logsInterface.([]interface{}); ok {
-		logsJSONB = gorm_model.JSONB{"data": logsMap}
-	} else if logsMap, ok := logsInterface.(map[string]interface{}); ok {
-		logsJSONB = gorm_model.JSONB(logsMap)
-	}
+	_ = json.Unmarshal(errorsJSON, &errorsArr)
+	_ = json.Unmarshal(logsJSON, &logsArr)
 
 	return &gorm_model.CrawlLogModel{
 		ID:           log.ID,
@@ -115,8 +97,8 @@ func (r *CrawlLogRepositoryImpl) toModel(log *entity.CrawlLog) *gorm_model.Crawl
 		JobsSaved:    log.JobsSaved,
 		JobsSkipped:  log.JobsSkipped,
 		PagesCrawled: log.PagesCrawled,
-		Errors:       errorsJSONB,
-		Logs:         logsJSONB,
+		Errors:       errorsArr,
+		Logs:         logsArr,
 		CreatedAt:    log.CreatedAt,
 	}
 }
@@ -137,32 +119,14 @@ func (r *CrawlLogRepositoryImpl) toDomain(model *gorm_model.CrawlLogModel) *enti
 		CreatedAt:    model.CreatedAt,
 	}
 
-	// Parse errors JSON
 	if model.Errors != nil {
 		errorsJSON, _ := json.Marshal(model.Errors)
-		var errorsData interface{}
-		json.Unmarshal(errorsJSON, &errorsData)
-		// If wrapped in {"data": array}, unwrap it
-		if errorsMap, ok := errorsData.(map[string]interface{}); ok {
-			if data, exists := errorsMap["data"]; exists {
-				errorsJSON, _ = json.Marshal(data)
-			}
-		}
-		json.Unmarshal(errorsJSON, &log.Errors)
+		_ = json.Unmarshal(errorsJSON, &log.Errors)
 	}
 
-	// Parse logs JSON
 	if model.Logs != nil {
 		logsJSON, _ := json.Marshal(model.Logs)
-		var logsData interface{}
-		json.Unmarshal(logsJSON, &logsData)
-		// If wrapped in {"data": array}, unwrap it
-		if logsMap, ok := logsData.(map[string]interface{}); ok {
-			if data, exists := logsMap["data"]; exists {
-				logsJSON, _ = json.Marshal(data)
-			}
-		}
-		json.Unmarshal(logsJSON, &log.Logs)
+		_ = json.Unmarshal(logsJSON, &log.Logs)
 	}
 
 	return log

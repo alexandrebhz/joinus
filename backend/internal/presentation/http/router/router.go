@@ -14,6 +14,7 @@ func NewRouter(
 	jobHandler *handler.JobHandler,
 	fileHandler *handler.FileHandler,
 	contactHandler *handler.ContactHandler,
+	billingHandler *handler.BillingHandler,
 	jwtService port.JWTService,
 	startupRepo repository.StartupRepository,
 	allowedOrigins []string,
@@ -47,6 +48,9 @@ func NewRouter(
 
 		// Contact
 		public.POST("/contact", contactHandler.Create)
+
+		// Stripe webhook (verified via Stripe-Signature header, requires the raw body)
+		public.POST("/billing/webhook", billingHandler.Webhook)
 	}
 
 	// Protected routes (JWT)
@@ -68,6 +72,10 @@ func NewRouter(
 
 		// Files
 		protected.POST("/upload", fileHandler.Upload)
+
+		// Billing
+		protected.POST("/billing/checkout", billingHandler.CreateCheckout)
+		protected.GET("/billing/status", billingHandler.Status)
 	}
 
 	// API Token routes

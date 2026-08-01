@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ExternalLink, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -61,6 +61,14 @@ const RAILWAY_REFERENCE = {
 }
 
 export default function RailwayReferencePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-600">Loading...</div>}>
+      <RailwayReferencePageContent />
+    </Suspense>
+  )
+}
+
+function RailwayReferencePageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 

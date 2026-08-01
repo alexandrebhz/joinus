@@ -13,9 +13,12 @@ export interface Startup {
   memberCount?: number
   jobCount?: number
   status: StartupStatus
+  plan: StartupPlan
+  planExpiresAt?: string
   createdAt: string
   updatedAt: string
 }
 
 export type StartupStatus = 'active' | 'inactive'
+export type StartupPlan = 'free' | 'pro'
 

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	authusecase "github.com/startup-job-board/backend/internal/application/usecase/auth"
+	billingusecase "github.com/startup-job-board/backend/internal/application/usecase/billing"
 	contactusecase "github.com/startup-job-board/backend/internal/application/usecase/contact"
 	fileusecase "github.com/startup-job-board/backend/internal/application/usecase/file"
 	jobusecase "github.com/startup-job-board/backend/internal/application/usecase/job"
@@ -18,6 +19,7 @@ import (
 	"github.com/startup-job-board/backend/internal/infrastructure/auth"
 	"github.com/startup-job-board/backend/internal/infrastructure/config"
 	"github.com/startup-job-board/backend/internal/infrastructure/email"
+	"github.com/startup-job-board/backend/internal/infrastructure/payment"
 	"github.com/startup-job-board/backend/internal/infrastructure/persistence/gorm_model"
 	"github.com/startup-job-board/backend/internal/infrastructure/persistence/postgres"
 	"github.com/startup-job-board/backend/internal/infrastructure/storage"
@@ -70,6 +72,7 @@ func main() {
 	emailService := email.NewResendEmailService(cfg.Email)
 	_ = email.NewEmailNotificationService(emailService) // Reserved for future use
 	authService := service.NewAuthorizationService(memberRepo)
+	stripeClient := payment.NewStripeClient(cfg.Stripe)
 
 	// Initialize use cases
 	registerUC := authusecase.NewRegisterUseCase(userRepo, logger)
@@ -91,6 +94,9 @@ func main() {
 
 	createContactUC := contactusecase.NewCreateContactUseCase(contactRepo, logger)
 
+	createCheckoutUC := billingusecase.NewCreateCheckoutUseCase(stripeClient, jobRepo, startupRepo, userRepo, authService, cfg.Stripe, cfg.AppURL, logger)
+	handleWebhookUC := billingusecase.NewHandleWebhookUseCase(stripeClient, jobRepo, startupRepo, logger)
+
 	// Initialize handlers
 	validator := validator.NewValidator()
 	authHandler := handler.NewAuthHandler(registerUC, loginUC, refreshTokenUC, validator)
@@ -98,6 +104,7 @@ func main() {
 	jobHandler := handler.NewJobHandler(createJobUC, updateJobUC, listJobsUC, deleteJobUC, jobRepo, startupRepo, validator)
 	fileHandler := handler.NewFileHandler(uploadFileUC)
 	contactHandler := handler.NewContactHandler(createContactUC, validator)
+	billingHandler := handler.NewBillingHandler(createCheckoutUC, handleWebhookUC, startupRepo, authService, validator)
 
 	// Initialize router
 	r := router.NewRouter(
@@ -106,6 +113,7 @@ func main() {
 		jobHandler,
 		fileHandler,
 		contactHandler,
+		billingHandler,
 		jwtService,
 		startupRepo,
 		cfg.CORS.AllowedOrigins,

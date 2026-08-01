@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Job } from '@/domain/entities/job.entity'
 import { Card, CardContent, CardFooter } from '../ui/card'
 import { Button } from '../ui/button'
-import { MapPin, Briefcase, DollarSign, Clock } from 'lucide-react'
+import { MapPin, Briefcase, DollarSign, Clock, Zap } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
 interface JobCardProps {
@@ -12,6 +12,8 @@ interface JobCardProps {
 }
 
 export function JobCard({ job }: JobCardProps) {
+  const isBoosted = !!job.boostedUntil && new Date(job.boostedUntil).getTime() > Date.now()
+
   const formatSalary = () => {
     if (!job.salaryMin && !job.salaryMax) return null
     const min = job.salaryMin?.toLocaleString() || 'N/A'
@@ -26,15 +28,23 @@ export function JobCard({ job }: JobCardProps) {
   }
 
   return (
-    <Card hover className="h-full flex flex-col">
+    <Card hover className={`h-full flex flex-col ${isBoosted ? 'ring-2 ring-warning-500' : ''}`}>
       <CardContent className="flex-1 pt-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <Link href={`/jobs/${job.id}`}>
-              <h3 className="text-lg font-semibold text-secondary-900 hover:text-primary-600 transition-colors mb-2">
-                {job.title}
-              </h3>
-            </Link>
+            <div className="flex items-center gap-2 mb-2">
+              <Link href={`/jobs/${job.id}`}>
+                <h3 className="text-lg font-semibold text-secondary-900 hover:text-primary-600 transition-colors">
+                  {job.title}
+                </h3>
+              </Link>
+              {isBoosted && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-warning-50 text-warning-600 text-xs font-semibold px-2 py-0.5 flex-shrink-0">
+                  <Zap className="h-3 w-3" />
+                  Boosted
+                </span>
+              )}
+            </div>
             {job.startupName && job.startupSlug ? (
               <Link href={`/startups/${job.startupSlug}`}>
                 <p className="text-sm text-primary-600 hover:text-primary-700 font-medium">

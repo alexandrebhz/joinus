@@ -20,6 +20,7 @@ type Config struct {
 	CORS     CORSConfig
 	RateLimit RateLimitConfig
 	AppURL   string
+	Stripe   StripeConfig
 }
 
 type DatabaseConfig struct {
@@ -71,6 +72,18 @@ type RateLimitConfig struct {
 	Enabled  bool
 	Requests int
 	Window   time.Duration
+}
+
+// StripeConfig holds Stripe billing settings.
+//
+// Plan mapping:
+//   - Job Boost (one-time, €49)   -> PriceJobBoost
+//   - Startup Pro (subscription, €99/mo) -> PriceStartupPro
+type StripeConfig struct {
+	SecretKey       string
+	WebhookSecret   string
+	PriceJobBoost   string
+	PriceStartupPro string
 }
 
 func Load() (*Config, error) {
@@ -130,6 +143,13 @@ func Load() (*Config, error) {
 		},
 
 		AppURL: getEnv("APP_URL", "http://localhost:3000"),
+
+		Stripe: StripeConfig{
+			SecretKey:       getEnv("STRIPE_SECRET_KEY", ""),
+			WebhookSecret:   getEnv("STRIPE_WEBHOOK_SECRET", ""),
+			PriceJobBoost:   getEnv("STRIPE_PRICE_JOB_BOOST", ""),
+			PriceStartupPro: getEnv("STRIPE_PRICE_STARTUP_PRO", ""),
+		},
 	}
 
 	return config, nil

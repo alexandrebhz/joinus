@@ -98,6 +98,8 @@ func (r *JobRepositoryImpl) List(ctx context.Context, filter repository.JobFilte
 	if filter.OrderDir != "" {
 		orderDir = strings.ToUpper(filter.OrderDir)
 	}
+	// Boosted jobs (with an active boost) are surfaced first, then the requested ordering applies.
+	query = query.Order("(boosted_until IS NOT NULL AND boosted_until > NOW()) DESC")
 	if orderDir == "ASC" {
 		query = query.Order(orderBy + " ASC")
 	} else {
@@ -152,6 +154,7 @@ func (r *JobRepositoryImpl) toModel(job *entity.Job) *gorm_model.Job {
 		ApplicationEmail: job.ApplicationEmail,
 		Status:          string(job.Status),
 		ExpiresAt:       job.ExpiresAt,
+		BoostedUntil:    job.BoostedUntil,
 		CreatedAt:       job.CreatedAt,
 		UpdatedAt:       job.UpdatedAt,
 	}
@@ -175,6 +178,7 @@ func (r *JobRepositoryImpl) toDomain(model *gorm_model.Job) *entity.Job {
 		ApplicationEmail: model.ApplicationEmail,
 		Status:          entity.JobStatus(model.Status),
 		ExpiresAt:       model.ExpiresAt,
+		BoostedUntil:    model.BoostedUntil,
 		CreatedAt:       model.CreatedAt,
 		UpdatedAt:       model.UpdatedAt,
 	}

@@ -71,7 +71,7 @@ func (uc *UpdateStartupUseCase) Execute(ctx context.Context, input dto.UpdateSta
 }
 
 func (uc *UpdateStartupUseCase) toOutput(startup *entity.Startup) *dto.StartupOutput {
-	return &dto.StartupOutput{
+	output := &dto.StartupOutput{
 		ID:              startup.ID,
 		Name:            startup.Name,
 		Slug:            startup.Slug,
@@ -84,9 +84,17 @@ func (uc *UpdateStartupUseCase) toOutput(startup *entity.Startup) *dto.StartupOu
 		Location:        startup.Location,
 		AllowPublicJoin: startup.AllowPublicJoin,
 		Status:          string(startup.Status),
+		Plan:            startup.Plan,
 		CreatedAt:       startup.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:       startup.UpdatedAt.Format(time.RFC3339),
 	}
+
+	if startup.PlanExpiresAt != nil {
+		planExpiresAtStr := startup.PlanExpiresAt.Format(time.RFC3339)
+		output.PlanExpiresAt = &planExpiresAtStr
+	}
+
+	return output
 }
 
 

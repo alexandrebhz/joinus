@@ -139,6 +139,11 @@ func (uc *UpdateJobUseCase) toOutput(job *entity.Job, startupName string) *dto.J
 		output.ExpiresAt = &expiresAtStr
 	}
 
+	if job.BoostedUntil != nil {
+		boostedUntilStr := job.BoostedUntil.Format(time.RFC3339)
+		output.BoostedUntil = &boostedUntilStr
+	}
+
 	return output
 }
 
