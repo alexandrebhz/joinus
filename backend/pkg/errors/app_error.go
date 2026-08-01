@@ -25,6 +25,7 @@ var (
 	ErrForbidden     = &AppError{Code: "FORBIDDEN", Message: "Forbidden"}
 	ErrBadRequest    = &AppError{Code: "BAD_REQUEST", Message: "Bad request"}
 	ErrInternalError = &AppError{Code: "INTERNAL_ERROR", Message: "Internal server error"}
+	ErrRateLimited   = &AppError{Code: "RATE_LIMITED", Message: "rate limit exceeded"}
 )
 
 func NewNotFoundError(resource string) *AppError {
@@ -54,6 +55,3 @@ func NewUnauthorizedError(message string) *AppError {
 		Message: message,
 	}
 }
-
-
-

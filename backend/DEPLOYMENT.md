@@ -86,3 +86,41 @@ Most platforms (Railway, Render, Heroku, etc.) automatically provide `DATABASE_U
 
 The application will automatically use `DATABASE_URL` if available, otherwise it falls back to individual parameters.
 
+## API anti-scrape / rate limiting
+
+Public `GET /api/v1/jobs` and `GET /api/v1/startups` are intentionally browseable (SEO + anonymous UX), but hardened against bulk dumps:
+
+| Control | Behavior |
+|---------|----------|
+| Rate limits | Stricter on public list (~30/min/IP) and detail (~60/min/IP); authenticated ~100/min; SSR with internal key ~300/min |
+| Pagination | Public `page_size` capped at 50 (auth up to 100); `page` capped at 500 |
+| Lean list payloads | List responses truncate descriptions and omit `application_email` / `application_url` (full apply data remains on job detail) |
+| Active-only | Unauthenticated list callers are forced to `status=active` |
+| SSR trust | Set the same `API_INTERNAL_KEY` on API and Next.js (server-only, never `NEXT_PUBLIC_`) |
+
+### Edge / Cloudflare (recommended in production)
+
+In-process limits are per API instance. Put Cloudflare (or equivalent) in front of the API and:
+
+1. Rate-limit paths `/api/v1/jobs*` and `/api/v1/startups*` by IP.
+2. Enable Bot Fight Mode / WAF managed rules.
+3. Optionally challenge anomalous traffic while allowing known search crawlers to hit the **frontend** HTML pages (not the API).
+
+Example env for production:
+
+```bash
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_REQUESTS=100
+RATE_LIMIT_WINDOW=1m
+RATE_LIMIT_LIST_REQUESTS=30
+RATE_LIMIT_DETAIL_REQUESTS=60
+RATE_LIMIT_TRUSTED_REQUESTS=300
+API_INTERNAL_KEY=<long-random-secret>
+```
+
+Frontend (Next.js server runtime only):
+
+```bash
+API_INTERNAL_KEY=<same-long-random-secret>
+```
+

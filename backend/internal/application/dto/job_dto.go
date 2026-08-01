@@ -50,8 +50,8 @@ type JobOutput struct {
 	SalaryMin        *int    `json:"salary_min"`
 	SalaryMax        *int    `json:"salary_max"`
 	Currency         string  `json:"currency"`
-	ApplicationURL   *string `json:"application_url"`
-	ApplicationEmail *string `json:"application_email"`
+	ApplicationURL   *string `json:"application_url,omitempty"`
+	ApplicationEmail *string `json:"application_email,omitempty"`
 	Status           string  `json:"status"`
 	ExpiresAt        *string `json:"expires_at"`
 	BoostedUntil     *string `json:"boosted_until"`

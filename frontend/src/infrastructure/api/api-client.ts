@@ -149,7 +149,7 @@ export class ApiClient implements IApiClient {
       },
     })
 
-    // Request interceptor to add auth token and log URLs for debugging
+    // Request interceptor to add auth token, SSR internal key, and log URLs
     this.client.interceptors.request.use(
       (config) => {
         // Log the actual URL being used (helpful for debugging)
@@ -174,6 +174,12 @@ export class ApiClient implements IApiClient {
           const token = localStorage.getItem('access_token')
           if (token) {
             config.headers.Authorization = `Bearer ${token}`
+          }
+        } else {
+          // Server-side only: never expose this key to the browser bundle
+          const internalKey = process.env.API_INTERNAL_KEY
+          if (internalKey) {
+            config.headers['X-Internal-Key'] = internalKey
           }
         }
         return config

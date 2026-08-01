@@ -57,6 +57,7 @@ services:
       - RATE_LIMIT_ENABLED=false
       - RATE_LIMIT_REQUESTS=100
       - RATE_LIMIT_WINDOW=1m
+      - API_INTERNAL_KEY=${API_INTERNAL_KEY:-dev-internal-key}
     depends_on:
       - postgres
       - minio
@@ -75,6 +76,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8080
       - NODE_ENV=development
+      - API_INTERNAL_KEY=${API_INTERNAL_KEY:-dev-internal-key}
     depends_on:
       - api
     restart: unless-stopped

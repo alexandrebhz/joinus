@@ -13,15 +13,16 @@ type Config struct {
 	Port        string
 	GinMode     string
 
-	Database  DatabaseConfig
-	JWT       JWTConfig
-	Storage   StorageConfig
-	Email     EmailConfig
-	CORS      CORSConfig
-	RateLimit RateLimitConfig
-	AppURL    string
-	Stripe    StripeConfig
-	OAuth     OAuthConfig
+	Database    DatabaseConfig
+	JWT         JWTConfig
+	Storage     StorageConfig
+	Email       EmailConfig
+	CORS        CORSConfig
+	RateLimit   RateLimitConfig
+	AppURL      string
+	Stripe      StripeConfig
+	OAuth       OAuthConfig
+	InternalKey string
 }
 
 type OAuthConfig struct {
@@ -41,15 +42,15 @@ type DatabaseConfig struct {
 }
 
 type JWTConfig struct {
-	Secret             string
-	Expiration         time.Duration
-	RefreshExpiration  time.Duration
+	Secret            string
+	Expiration        time.Duration
+	RefreshExpiration time.Duration
 }
 
 type StorageConfig struct {
-	Type         string
-	MinIO        MinIOConfig
-	S3           S3Config
+	Type  string
+	MinIO MinIOConfig
+	S3    S3Config
 }
 
 type MinIOConfig struct {
@@ -76,9 +77,12 @@ type CORSConfig struct {
 }
 
 type RateLimitConfig struct {
-	Enabled  bool
-	Requests int
-	Window   time.Duration
+	Enabled      bool
+	Requests     int // authenticated / default
+	Window       time.Duration
+	ListLimit    int // public list endpoints
+	DetailLimit  int // public detail endpoints
+	TrustedLimit int // SSR with internal key
 }
 
 // StripeConfig holds Stripe billing settings.
@@ -144,12 +148,17 @@ func Load() (*Config, error) {
 		},
 
 		RateLimit: RateLimitConfig{
-			Enabled:  getEnvBool("RATE_LIMIT_ENABLED", true),
-			Requests: getEnvInt("RATE_LIMIT_REQUESTS", 100),
-			Window:   parseDuration(getEnv("RATE_LIMIT_WINDOW", "1m")),
+			Enabled:      getEnvBool("RATE_LIMIT_ENABLED", true),
+			Requests:     getEnvInt("RATE_LIMIT_REQUESTS", 100),
+			Window:       parseDuration(getEnv("RATE_LIMIT_WINDOW", "1m")),
+			ListLimit:    getEnvInt("RATE_LIMIT_LIST_REQUESTS", 30),
+			DetailLimit:  getEnvInt("RATE_LIMIT_DETAIL_REQUESTS", 60),
+			TrustedLimit: getEnvInt("RATE_LIMIT_TRUSTED_REQUESTS", 300),
 		},
 
 		AppURL: getEnv("APP_URL", "http://localhost:3000"),
+
+		InternalKey: getEnv("API_INTERNAL_KEY", ""),
 
 		Stripe: StripeConfig{
 			SecretKey:       getEnv("STRIPE_SECRET_KEY", ""),
@@ -244,6 +253,3 @@ func trimString(s string) string {
 	}
 	return s[start:end]
 }
-
-
-
