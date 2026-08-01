@@ -7,6 +7,7 @@ import (
 
 type EmailService interface {
 	SendInvitationEmail(ctx context.Context, invitation *entity.Invitation, startup *entity.Startup, inviteURL string) error
+	SendTeamInvitationEmail(ctx context.Context, toEmail, teamName, inviteURL string) error
 	SendJoinRequestNotification(ctx context.Context, member *entity.StartupMember, startup *entity.Startup) error
 	SendMemberApprovedEmail(ctx context.Context, member *entity.StartupMember, startup *entity.Startup) error
 }

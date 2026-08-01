@@ -48,5 +48,12 @@ func NewForbiddenError(message string) *AppError {
 	}
 }
 
+func NewUnauthorizedError(message string) *AppError {
+	return &AppError{
+		Code:    "UNAUTHORIZED",
+		Message: message,
+	}
+}
+
 
 

@@ -20,6 +20,7 @@ type StartupRepository interface {
 	FindBySlug(ctx context.Context, slug string) (*entity.Startup, error)
 	FindByAPIToken(ctx context.Context, token string) (*entity.Startup, error)
 	FindByStripeSubscriptionID(ctx context.Context, subscriptionID string) (*entity.Startup, error)
+	FindByTeamID(ctx context.Context, teamID string) ([]*entity.Startup, error)
 	List(ctx context.Context, filter StartupFilter) ([]*entity.Startup, int64, error)
 }
 

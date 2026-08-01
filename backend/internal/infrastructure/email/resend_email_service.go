@@ -44,6 +44,25 @@ func (s *ResendEmailService) SendInvitationEmail(ctx context.Context, invitation
 	return err
 }
 
+func (s *ResendEmailService) SendTeamInvitationEmail(ctx context.Context, toEmail, teamName, inviteURL string) error {
+	subject := fmt.Sprintf("You've been invited to join %s", teamName)
+	htmlBody := fmt.Sprintf(`
+		<h1>You've been invited!</h1>
+		<p>You've been invited to join the team <strong>%s</strong> on JoinUs.</p>
+		<p><a href="%s">Accept Invitation</a></p>
+		<p>This invitation expires in 24 hours.</p>
+	`, teamName, inviteURL)
+
+	params := &resend.SendEmailRequest{
+		From:    s.from,
+		To:      []string{toEmail},
+		Subject: subject,
+		Html:    htmlBody,
+	}
+	_, err := s.client.Emails.Send(params)
+	return err
+}
+
 func (s *ResendEmailService) SendJoinRequestNotification(ctx context.Context, member *entity.StartupMember, startup *entity.Startup) error {
 	// This would notify startup owners/admins about a join request
 	// For now, we'll implement a simple version

@@ -35,9 +35,21 @@ func RequireRole(allowedRoles ...entity.UserRole) gin.HandlerFunc {
 	}
 }
 
+// RequirePlatformAdmin allows platform_admin and legacy admin JWT roles.
+func RequirePlatformAdmin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole := entity.UserRole(GetUserRole(c))
+		if !userRole.IsPlatformAdmin() {
+			response.Forbidden(c)
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
 // RequireCompanyRole creates a middleware that allows only admin or startup_owner roles
 // This is used for company/startup management operations
 func RequireCompanyRole() gin.HandlerFunc {
-	return RequireRole(entity.UserRoleAdmin, entity.UserRoleStartupOwner)
+	return RequireRole(entity.UserRoleAdmin, entity.UserRolePlatformAdmin, entity.UserRoleStartupOwner)
 }
-

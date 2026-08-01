@@ -18,13 +18,15 @@ type Startup struct {
 	AllowPublicJoin bool
 	JoinCode        *string
 	Status          StartupStatus
+	// TeamID is optional: admin-curated startups may have no team until linked.
+	TeamID               *string
 	Plan                 string
 	PlanExpiresAt        *time.Time
 	StripeCustomerID     *string
 	StripeSubscriptionID *string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	DeletedAt       *time.Time
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+	DeletedAt            *time.Time
 }
 
 type StartupPlan string

@@ -8,7 +8,6 @@ import (
 	"github.com/startup-job-board/backend/internal/application/dto"
 	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
-	"github.com/startup-job-board/backend/internal/domain/service"
 	"github.com/startup-job-board/backend/internal/application/port"
 	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/logger"
@@ -54,10 +53,9 @@ func (uc *InviteMemberUseCase) Execute(ctx context.Context, input dto.InviteMemb
 		return nil, errors.NewNotFoundError("startup")
 	}
 
-	// Check if inviter has permission
-	authService := service.NewAuthorizationService(uc.memberRepo)
-	canManage, err := authService.CanManageMembers(ctx, inviterID, input.StartupID)
-	if err != nil || !canManage {
+	// Check if inviter has permission via legacy startup membership.
+	member, err := uc.memberRepo.FindByUserAndStartup(ctx, inviterID, input.StartupID)
+	if err != nil || member == nil || !member.CanManageMembers() {
 		return nil, errors.NewForbiddenError("you don't have permission to invite members")
 	}
 
