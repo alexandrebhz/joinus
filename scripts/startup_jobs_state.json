@@ -1,0 +1,164 @@
+{
+  "created_jobs": {},
+  "processed_startups": {
+    "0455617e-1070-4a2e-a38d-a5ca020222e9": {
+      "careers_urls": [
+        "https://www.clay.com/careers",
+        "https://www.clay.com/jobs",
+        "https://www.clay.com/integrations/action/find-jobs-companies-people-and-jobs",
+        "https://www.clay.com/integrations/data-points/job-count",
+        "https://www.clay.com/job-board",
+        "https://www.clay.com/templates/find-and-outreach-to-companies-hiring-your-icp"
+      ],
+      "errors": [
+        "firecrawl agent failed for Clay: \u280b Starting agent...\n\u2819 Starting agent...\n\u2839 Starting agent...\n\u2838 Starting agent...\n\u283c Starting agent...\n\u2834 Starting agent...\n\u2826 Agent running... (Job ID: 019f511d-ff4d-7043-a876-0b2e3eb67162)\n\u2827 Agent running... (Job ID: 019f511d-ff4d-7043-a876-0b2e3eb67162)\n\u2807 Agent running... (Job ID: 019f511d-ff4d-7043-a876-0b2e3eb67162)\n\u280f Agent running... (Job ID: 019f511d-ff4d-7043-a876-0b2e3eb67162)\n\u280b Agent running... (Job ID: 019f511d-ff4d-7043-a876-0b2e3eb67162)\n\u2819 Agent running....."
+      ],
+      "jobs_created": 0,
+      "jobs_found": 0,
+      "jobs_skipped": 0,
+      "startup_id": "0455617e-1070-4a2e-a38d-a5ca020222e9",
+      "startup_name": "Clay",
+      "website": "https://www.clay.com/"
+    },
+    "0bc99952-0fd8-4f08-9e54-cc033c05bb43": {
+      "careers_urls": [
+        "https://www.apollo.io/careers",
+        "https://www.apollo.io/product/enrichment-job-change-alerts"
+      ],
+      "errors": [
+        "firecrawl agent failed for Apollo: \u280b Starting agent...\n\u2819 Starting agent...\n\u2839 Starting agent...\n\u2838 Starting agent...\n\u283c Starting agent...\n\u2834 Starting agent...\n\u2826 Starting agent...\n\u2827 Starting agent...\n\u2807 Starting agent...\n\u280f Agent running... (Job ID: 019f510e-8315-743d-b865-550960230c07)\n\u280b Agent running... (Job ID: 019f510e-8315-743d-b865-550960230c07)\n\u2819 Agent running... (Job ID: 019f510e-8315-743d-b865-550960230c07)\n\u2839 Agent running... (Job ID: 019f510e-8315-743d-b865-550960230c07)\n\u2838 Agent running... (J..."
+      ],
+      "jobs_created": 0,
+      "jobs_found": 0,
+      "jobs_skipped": 0,
+      "startup_id": "0bc99952-0fd8-4f08-9e54-cc033c05bb43",
+      "startup_name": "Apollo",
+      "website": "https://www.apollo.io/"
+    },
+    "1b4d38dd-265e-4116-b6de-c16f7f37e755": {
+      "careers_urls": [
+        "https://veridion.com/company/careers/deeptech-intern"
+      ],
+      "errors": [
+        "firecrawl agent failed for Veridion: \u280b Starting agent...\n\u2819 Starting agent...\n\u2839 Starting agent...\n\u2838 Starting agent...\n\u283c Starting agent...\n\u2834 Starting agent...\n\u2826 Starting agent...\n\u2827 Agent running... (Job ID: 019f511a-0f0d-7143-998d-a2ad305c5dfe)\n\u2807 Agent running... (Job ID: 019f511a-0f0d-7143-998d-a2ad305c5dfe)\n\u280f Agent running... (Job ID: 019f511a-0f0d-7143-998d-a2ad305c5dfe)\n\u280b Agent running... (Job ID: 019f511a-0f0d-7143-998d-a2ad305c5dfe)\n\u2819 Agent running... (Job ID: 019f511a-0f0d-7143-998d-a2ad305..."
+      ],
+      "jobs_created": 0,
+      "jobs_found": 0,
+      "jobs_skipped": 0,
+      "startup_id": "1b4d38dd-265e-4116-b6de-c16f7f37e755",
+      "startup_name": "Veridion",
+      "website": "https://veridion.com/"
+    },
+    "388c9076-764b-4959-a3a7-1df8f8855148": {
+      "careers_urls": [
+        "https://www.zoominfo.com/careers",
+        "https://www.zoominfo.com/careers/8477035002",
+        "https://www.zoominfo.com/careers/8592649002",
+        "https://www.zoominfo.com/careers/amsourcing1/account-manager-smb",
+        "https://www.zoominfo.com/careers/entspeersourcing/senior-account-manager-enterprise",
+        "https://www.zoominfo.com/careers/jr107222/it-audit-analyst"
+      ],
+      "errors": [],
+      "jobs_created": 0,
+      "jobs_found": 5,
+      "jobs_skipped": 0,
+      "startup_id": "388c9076-764b-4959-a3a7-1df8f8855148",
+      "startup_name": "Zoominfo",
+      "website": "https://www.zoominfo.com/"
+    },
+    "41971986-ab68-4da0-9130-6f4d85316dcb": {
+      "careers_urls": [
+        "https://profileapi.com/careers",
+        "https://profileapi.com/jobs",
+        "https://profileapi.com/company/careers",
+        "https://profileapi.com/about/careers",
+        "https://profileapi.com/work-with-us",
+        "https://profileapi.com/join-us"
+      ],
+      "errors": [
+        "firecrawl agent failed for Truebase: \u280b Starting agent...\n\u2819 Starting agent...\n\u2839 Starting agent...\n\u2838 Starting agent...\n\u283c Starting agent...\n\u2834 Starting agent...\n\u2826 Starting agent...\n\u2827 Agent running... (Job ID: 019f511f-fdf5-73ad-a3e6-6cb50f3cf683)\n\u2807 Agent running... (Job ID: 019f511f-fdf5-73ad-a3e6-6cb50f3cf683)\n\u280f Agent running... (Job ID: 019f511f-fdf5-73ad-a3e6-6cb50f3cf683)\n\u280b Agent running... (Job ID: 019f511f-fdf5-73ad-a3e6-6cb50f3cf683)\n\u2819 Agent running... (Job ID: 019f511f-fdf5-73ad-a3e6-6cb50f3..."
+      ],
+      "jobs_created": 0,
+      "jobs_found": 0,
+      "jobs_skipped": 0,
+      "startup_id": "41971986-ab68-4da0-9130-6f4d85316dcb",
+      "startup_name": "Truebase",
+      "website": "https://profileapi.com/"
+    },
+    "9324b7e8-38c3-44ec-817c-1355fe733d24": {
+      "careers_urls": [
+        "https://ipinfo.io/jobs"
+      ],
+      "errors": [],
+      "jobs_created": 0,
+      "jobs_found": 7,
+      "jobs_skipped": 0,
+      "startup_id": "9324b7e8-38c3-44ec-817c-1355fe733d24",
+      "startup_name": "IPInfo",
+      "website": "https://ipinfo.io/"
+    },
+    "98e70df7-bf4a-4054-b542-7bf1e4516ef0": {
+      "careers_urls": [
+        "https://www.crunchbase.com/organization/authority-job",
+        "https://www.crunchbase.com/organization/career-graph",
+        "https://www.crunchbase.com/organization/cybersecjobs",
+        "https://www.crunchbase.com/organization/finnjobs",
+        "https://www.crunchbase.com/organization/flexjobs-corporation",
+        "https://www.crunchbase.com/organization/fresher-openings"
+      ],
+      "errors": [
+        "firecrawl agent failed for Crunchbase: \u280b Starting agent...\n\u2819 Starting agent...\n\u2839 Starting agent...\n\u2838 Starting agent...\n\u283c Starting agent...\n\u2834 Starting agent...\n\u2826 Agent running... (Job ID: 019f5114-e997-751e-b67c-0b5ee9aa861f)\n\u2827 Agent running... (Job ID: 019f5114-e997-751e-b67c-0b5ee9aa861f)\n\u2807 Agent running... (Job ID: 019f5114-e997-751e-b67c-0b5ee9aa861f)\n\u280f Agent running... (Job ID: 019f5114-e997-751e-b67c-0b5ee9aa861f)\n\u280b Agent running... (Job ID: 019f5114-e997-751e-b67c-0b5ee9aa861f)\n\u2819 Agent run..."
+      ],
+      "jobs_created": 0,
+      "jobs_found": 0,
+      "jobs_skipped": 0,
+      "startup_id": "98e70df7-bf4a-4054-b542-7bf1e4516ef0",
+      "startup_name": "Crunchbase",
+      "website": "https://www.crunchbase.com/"
+    },
+    "a307eb3f-d6da-43cc-b480-872596457b55": {
+      "careers_urls": [
+        "https://www.peopledatalabs.com/job-posting-insights"
+      ],
+      "errors": [],
+      "jobs_created": 0,
+      "jobs_found": 2,
+      "jobs_skipped": 0,
+      "startup_id": "a307eb3f-d6da-43cc-b480-872596457b55",
+      "startup_name": "People Data Labs",
+      "website": "https://www.peopledatalabs.com/"
+    },
+    "c708c18b-f4fb-446f-afa8-8ffd47785598": {
+      "careers_urls": [
+        "https://www.cognism.com/careers",
+        "https://www.cognism.com/jobs",
+        "https://www.cognism.com/jobs?gh_jid=4879404101",
+        "https://www.cognism.com/jobs?gh_jid=4884865101",
+        "https://www.cognism.com/jobs?gh_jid=4919005101"
+      ],
+      "errors": [
+        "firecrawl agent failed for Cognism: \u280b Starting agent...\n\u2819 Starting agent...\n\u2839 Starting agent...\n\u2838 Starting agent...\n\u283c Starting agent...\n\u2834 Starting agent...\n\u2826 Starting agent...\n\u2827 Agent running... (Job ID: 019f5110-4a6c-753d-84c8-347923b40f26)\n\u2807 Agent running... (Job ID: 019f5110-4a6c-753d-84c8-347923b40f26)\n\u280f Agent running... (Job ID: 019f5110-4a6c-753d-84c8-347923b40f26)\n\u280b Agent running... (Job ID: 019f5110-4a6c-753d-84c8-347923b40f26)\n\u2819 Agent running... (Job ID: 019f5110-4a6c-753d-84c8-347923b4..."
+      ],
+      "jobs_created": 0,
+      "jobs_found": 0,
+      "jobs_skipped": 0,
+      "startup_id": "c708c18b-f4fb-446f-afa8-8ffd47785598",
+      "startup_name": "Cognism",
+      "website": "https://www.cognism.com/"
+    },
+    "f456f1a6-f4ae-4664-a4f6-307b37708127": {
+      "careers_urls": [
+        "https://clearbit.com/resources/books/data-driven-sales/sales-hiring"
+      ],
+      "errors": [
+        "firecrawl agent failed for Clearbit by Hubspot: \u280b Starting agent...\n\u2819 Starting agent...\n\u2839 Starting agent...\n\u2838 Starting agent...\n\u283c Starting agent...\n\u2834 Starting agent...\n\u2826 Starting agent...\n\u2827 Agent running... (Job ID: 019f5117-33cf-7370-a761-93706c18e41d)\n\u2807 Agent running... (Job ID: 019f5117-33cf-7370-a761-93706c18e41d)\n\u280f Agent running... (Job ID: 019f5117-33cf-7370-a761-93706c18e41d)\n\u280b Agent running... (Job ID: 019f5117-33cf-7370-a761-93706c18e41d)\n\u2819 Agent running... (Job ID: 019f5117-33cf-7370-a..."
+      ],
+      "jobs_created": 0,
+      "jobs_found": 0,
+      "jobs_skipped": 0,
+      "startup_id": "f456f1a6-f4ae-4664-a4f6-307b37708127",
+      "startup_name": "Clearbit by Hubspot",
+      "website": "https://clearbit.com/"
+    }
+  }
+}

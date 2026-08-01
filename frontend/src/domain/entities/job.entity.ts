@@ -17,6 +17,7 @@ export interface Job {
   applicationEmail?: string
   status: JobStatus
   expiresAt?: string
+  boostedUntil?: string
   createdAt: string
   updatedAt: string
 }

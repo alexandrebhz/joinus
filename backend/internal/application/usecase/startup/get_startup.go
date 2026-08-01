@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/startup-job-board/backend/internal/application/dto"
+	"github.com/startup-job-board/backend/internal/domain/entity"
 	"github.com/startup-job-board/backend/internal/domain/repository"
 	"github.com/startup-job-board/backend/pkg/errors"
 	"github.com/startup-job-board/backend/pkg/logger"
@@ -31,22 +32,7 @@ func (uc *GetStartupUseCase) Execute(ctx context.Context, id string) (*dto.Start
 		return nil, errors.NewNotFoundError("startup")
 	}
 
-	return &dto.StartupOutput{
-		ID:              startup.ID,
-		Name:            startup.Name,
-		Slug:            startup.Slug,
-		Description:     startup.Description,
-		LogoURL:         startup.LogoURL,
-		Website:         startup.Website,
-		FoundedYear:     startup.FoundedYear,
-		Industry:        startup.Industry,
-		CompanySize:     startup.CompanySize,
-		Location:        startup.Location,
-		AllowPublicJoin: startup.AllowPublicJoin,
-		Status:          string(startup.Status),
-		CreatedAt:       startup.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:       startup.UpdatedAt.Format(time.RFC3339),
-	}, nil
+	return uc.toOutput(startup), nil
 }
 
 func (uc *GetStartupUseCase) ExecuteBySlug(ctx context.Context, slug string) (*dto.StartupOutput, error) {
@@ -55,7 +41,11 @@ func (uc *GetStartupUseCase) ExecuteBySlug(ctx context.Context, slug string) (*d
 		return nil, errors.NewNotFoundError("startup")
 	}
 
-	return &dto.StartupOutput{
+	return uc.toOutput(startup), nil
+}
+
+func (uc *GetStartupUseCase) toOutput(startup *entity.Startup) *dto.StartupOutput {
+	output := &dto.StartupOutput{
 		ID:              startup.ID,
 		Name:            startup.Name,
 		Slug:            startup.Slug,
@@ -68,9 +58,17 @@ func (uc *GetStartupUseCase) ExecuteBySlug(ctx context.Context, slug string) (*d
 		Location:        startup.Location,
 		AllowPublicJoin: startup.AllowPublicJoin,
 		Status:          string(startup.Status),
+		Plan:            startup.Plan,
 		CreatedAt:       startup.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:       startup.UpdatedAt.Format(time.RFC3339),
-	}, nil
+	}
+
+	if startup.PlanExpiresAt != nil {
+		planExpiresAtStr := startup.PlanExpiresAt.Format(time.RFC3339)
+		output.PlanExpiresAt = &planExpiresAtStr
+	}
+
+	return output
 }
 
 

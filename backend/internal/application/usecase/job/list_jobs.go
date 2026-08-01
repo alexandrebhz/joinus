@@ -77,6 +77,11 @@ func (uc *ListJobsUseCase) toOutput(job *entity.Job, startupName string, startup
 		output.ExpiresAt = &expiresAtStr
 	}
 
+	if job.BoostedUntil != nil {
+		boostedUntilStr := job.BoostedUntil.Format(time.RFC3339)
+		output.BoostedUntil = &boostedUntilStr
+	}
+
 	return output
 }
 

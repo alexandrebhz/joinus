@@ -4,6 +4,7 @@ import { AuthResponse, LoginRequest, RegisterRequest } from '@/application/dto/a
 import { JobResponse, CreateJobRequest, UpdateJobRequest, JobListFilters } from '@/application/dto/job.dto'
 import { StartupResponse, CreateStartupRequest, UpdateStartupRequest, StartupListFilters } from '@/application/dto/startup.dto'
 import { CreateContactRequest, ContactResponse } from '@/application/dto/contact.dto'
+import { CreateCheckoutRequest, CheckoutResponse, BillingStatusResponse } from '@/application/dto/billing.dto'
 import { User } from '@/domain/entities/user.entity'
 import { ApiResponse, ApiError } from '@/domain/value-objects/api-response.vo'
 
@@ -29,10 +30,21 @@ export class ApiClient implements IApiClient {
       applicationEmail: job.application_email,
       status: job.status,
       expiresAt: job.expires_at,
+      boostedUntil: job.boosted_until,
       createdAt: job.created_at,
       updatedAt: job.updated_at,
     }
   }
+
+  // Attach plan/billing fields (snake_case from the API) onto the startup payload
+  private transformStartupData(startup: any): StartupResponse {
+    return {
+      ...startup,
+      plan: startup.plan || 'free',
+      planExpiresAt: startup.plan_expires_at,
+    }
+  }
+
   private client: AxiosInstance
   private baseURL: string
 
@@ -358,6 +370,10 @@ export class ApiClient implements IApiClient {
       params: filters,
     })
     
+    if (response.data && Array.isArray(response.data)) {
+      response.data = response.data.map((startup) => this.transformStartupData(startup))
+    }
+
     // Transform pagination meta from snake_case to camelCase
     if (response.meta) {
       const meta = response.meta as any
@@ -373,34 +389,50 @@ export class ApiClient implements IApiClient {
   }
 
   async getStartup(id: string): Promise<ApiResponse<StartupResponse>> {
-    return this.request<StartupResponse>({
+    const response = await this.request<any>({
       method: 'GET',
       url: `/startups/${id}`,
     })
+    if (response.data) {
+      response.data = this.transformStartupData(response.data)
+    }
+    return response as ApiResponse<StartupResponse>
   }
 
   async getStartupBySlug(slug: string): Promise<ApiResponse<StartupResponse>> {
-    return this.request<StartupResponse>({
+    const response = await this.request<any>({
       method: 'GET',
       url: `/startups/slug/${slug}`,
     })
+    if (response.data) {
+      response.data = this.transformStartupData(response.data)
+    }
+    return response as ApiResponse<StartupResponse>
   }
 
   async createStartup(data: CreateStartupRequest): Promise<ApiResponse<StartupResponse>> {
-    return this.request<StartupResponse>({
+    const response = await this.request<any>({
       method: 'POST',
       url: '/startups',
       data,
     })
+    if (response.data) {
+      response.data = this.transformStartupData(response.data)
+    }
+    return response as ApiResponse<StartupResponse>
   }
 
   async updateStartup(data: UpdateStartupRequest): Promise<ApiResponse<StartupResponse>> {
     const { id, ...updateData } = data
-    return this.request<StartupResponse>({
+    const response = await this.request<any>({
       method: 'PUT',
       url: `/startups/${id}`,
       data: updateData,
     })
+    if (response.data) {
+      response.data = this.transformStartupData(response.data)
+    }
+    return response as ApiResponse<StartupResponse>
   }
 
   // File methods
@@ -422,6 +454,39 @@ export class ApiClient implements IApiClient {
       url: '/contact',
       data,
     })
+  }
+
+  // Billing methods
+  async createCheckout(data: CreateCheckoutRequest): Promise<ApiResponse<CheckoutResponse>> {
+    const response = await this.request<any>({
+      method: 'POST',
+      url: '/billing/checkout',
+      data,
+    })
+    return {
+      ...response,
+      data: {
+        url: response.data.url,
+        sessionId: response.data.session_id,
+      },
+    }
+  }
+
+  async getBillingStatus(): Promise<ApiResponse<BillingStatusResponse>> {
+    const response = await this.request<any>({
+      method: 'GET',
+      url: '/billing/status',
+    })
+    const startups = (response.data?.startups || []).map((s: any) => ({
+      startupId: s.startup_id,
+      startupName: s.startup_name,
+      plan: s.plan,
+      planExpiresAt: s.plan_expires_at,
+    }))
+    return {
+      ...response,
+      data: { startups },
+    }
   }
 }
 

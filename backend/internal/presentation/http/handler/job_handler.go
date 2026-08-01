@@ -203,6 +203,11 @@ func (h *JobHandler) Get(c *gin.Context) {
 		output.ExpiresAt = &expiresAtStr
 	}
 
+	if job.BoostedUntil != nil {
+		boostedUntilStr := job.BoostedUntil.Format(time.RFC3339)
+		output.BoostedUntil = &boostedUntilStr
+	}
+
 	response.Success(c, output)
 }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { crawlerApiClient, CreateSiteInput, PaginationConfig, ExtractionRules } from '@/lib/api-client'
 import { ArrowLeft, Save } from 'lucide-react'
@@ -48,6 +48,14 @@ const getDefaultFormData = (): CreateSiteInput => ({
 })
 
 export default function NewSitePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-600">Loading...</div>}>
+      <NewSitePageContent />
+    </Suspense>
+  )
+}
+
+function NewSitePageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)

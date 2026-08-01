@@ -74,6 +74,7 @@ func (uc *CreateStartupUseCase) Execute(ctx context.Context, input dto.CreateSta
 		APIToken:        tokenStr,
 		AllowPublicJoin: input.AllowPublicJoin,
 		Status:          entity.StartupStatusActive,
+		Plan:            string(entity.StartupPlanFree),
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
 	}
@@ -134,6 +135,7 @@ func (uc *CreateStartupUseCase) toOutput(startup *entity.Startup) *dto.StartupOu
 		Location:        startup.Location,
 		AllowPublicJoin: startup.AllowPublicJoin,
 		Status:          string(startup.Status),
+		Plan:            startup.Plan,
 		CreatedAt:       startup.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:       startup.UpdatedAt.Format(time.RFC3339),
 	}

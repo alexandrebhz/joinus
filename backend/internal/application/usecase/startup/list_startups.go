@@ -40,7 +40,7 @@ func (uc *ListStartupsUseCase) Execute(ctx context.Context, filter repository.St
 }
 
 func (uc *ListStartupsUseCase) toOutput(startup *entity.Startup) *dto.StartupOutput {
-	return &dto.StartupOutput{
+	output := &dto.StartupOutput{
 		ID:              startup.ID,
 		Name:            startup.Name,
 		Slug:            startup.Slug,
@@ -53,9 +53,17 @@ func (uc *ListStartupsUseCase) toOutput(startup *entity.Startup) *dto.StartupOut
 		Location:        startup.Location,
 		AllowPublicJoin: startup.AllowPublicJoin,
 		Status:          string(startup.Status),
+		Plan:            startup.Plan,
 		CreatedAt:       startup.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:       startup.UpdatedAt.Format(time.RFC3339),
 	}
+
+	if startup.PlanExpiresAt != nil {
+		planExpiresAtStr := startup.PlanExpiresAt.Format(time.RFC3339)
+		output.PlanExpiresAt = &planExpiresAtStr
+	}
+
+	return output
 }
 
 

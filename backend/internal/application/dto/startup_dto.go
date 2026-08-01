@@ -39,6 +39,8 @@ type StartupOutput struct {
 	MemberCount     int     `json:"member_count,omitempty"`
 	JobCount        int     `json:"job_count,omitempty"`
 	Status          string  `json:"status"`
+	Plan            string  `json:"plan"`
+	PlanExpiresAt   *string `json:"plan_expires_at"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
 }

@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "properties": {
+    "has_open_jobs": {
+      "type": "boolean",
+      "description": "Whether the company currently has open job positions listed"
+    },
+    "careers_page_url": {
+      "type": "string",
+      "description": "URL of the careers/jobs page found on the company website"
+    },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "requirements": { "type": "string" },
+          "job_type": {
+            "type": "string",
+            "description": "full_time, part_time, contract, or internship"
+          },
+          "location_type": {
+            "type": "string",
+            "description": "remote, hybrid, or onsite"
+          },
+          "city": { "type": "string" },
+          "country": { "type": "string" },
+          "salary_min": { "type": "number" },
+          "salary_max": { "type": "number" },
+          "currency": { "type": "string" },
+          "application_url": { "type": "string" },
+          "application_email": { "type": "string" }
+        },
+        "required": ["title", "description"]
+      }
+    }
+  },
+  "required": ["has_open_jobs", "jobs"]
+}

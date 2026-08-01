@@ -7,7 +7,7 @@ import { Footer } from '@/presentation/components/layout/footer'
 import { useAuthStore } from '@/infrastructure/store/auth.store'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/presentation/components/ui/card'
 import { Button } from '@/presentation/components/ui/button'
-import { Briefcase, Building2, Plus } from 'lucide-react'
+import { Briefcase, Building2, Plus, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
@@ -65,6 +65,23 @@ export default function DashboardPage() {
                 <Link href="/dashboard/startups">
                   <Button variant="outline" className="w-full">
                     View Startups
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card hover>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Zap className="h-5 w-5 mr-2 text-primary-600" />
+                  Billing &amp; Boosts
+                </CardTitle>
+                <CardDescription>Boost a job listing or upgrade to Startup Pro</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Link href="/dashboard/billing">
+                  <Button variant="outline" className="w-full">
+                    View Plans
                   </Button>
                 </Link>
               </CardContent>
