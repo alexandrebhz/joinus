@@ -27,7 +27,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [setUser])
 
-  // Block protected UI until cookie session is checked (avoids login redirect flash).
+  // Wait for the cookie session probe before rendering so auth-gated UI
+  // sees a settled isAuthenticated value (no false redirect flash).
   if (!ready) {
     return null
   }

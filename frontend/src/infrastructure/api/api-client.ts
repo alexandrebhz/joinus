@@ -142,8 +142,17 @@ export class ApiClient implements IApiClient {
       (response) => response,
       async (error: AxiosError<ApiError>) => {
         if (error.response?.status === 401 && isBrowser) {
-          // BFF proxy already attempts refresh via HttpOnly cookie; send user to login.
-          if (window.location.pathname !== '/login') {
+          const requestUrl = error.config?.url || ''
+          // AuthSessionProvider probes /me on every page; a 401 means "logged out", not "force login".
+          const isSessionProbe =
+            requestUrl === '/me' ||
+            requestUrl.endsWith('/me') ||
+            requestUrl.includes('/me?')
+          const path = window.location.pathname
+          const isProtectedRoute = path.startsWith('/dashboard')
+          // Only hard-redirect when an authenticated action fails on a protected page.
+          // Public pages (home, jobs, etc.) stay put; dashboard route guards also cover this.
+          if (!isSessionProbe && isProtectedRoute) {
             window.location.href = '/login'
           }
         }
